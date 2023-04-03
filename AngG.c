@@ -79,6 +79,7 @@ int main()
 						{
 	                        case 1:
 	                            nRecord = addRecord(records, nRecord);
+	                            printf("\n%d", nRecord);
 	                            break;
 	                        case 2:
 	                            //editRecord();
@@ -226,7 +227,7 @@ void getInput(struct record *record, int nRecords)
 			    strcmp((record+nRecords)->aAnswer,(record+j)->aAnswer) == 0)
 			{
 				found = 1;
-			}
+			} 
 		}
 		
 		if (found != 1)
@@ -257,10 +258,6 @@ void getInput(struct record *record, int nRecords)
 				    strcmp((record+nRecords)->aChoicesOne,(record+nRecords)->aChoicesThree) == 0));
 		}	
 		
-		else
-		{
-			printf("\nThis record already exists.");		
-		}
 	}
 	
 	else
@@ -284,7 +281,7 @@ void getInput(struct record *record, int nRecords)
 				{
 					found = 1;
 				}
-			}
+			} 
 			
 			if (found != 1)
 			{
@@ -312,11 +309,7 @@ void getInput(struct record *record, int nRecords)
 					    strcmp((record+i)->aChoicesTwo,(record+i)->aChoicesThree) == 0 ||
 					    strcmp((record+i)->aChoicesOne,(record+i)->aChoicesThree) == 0));
 			}	
-			
-			else
-			{
-				printf("\nThis record already exists.");		
-			}	 
+				 
 		}		
 	}
 	
@@ -325,9 +318,32 @@ void getInput(struct record *record, int nRecords)
 
 int addRecord(struct record *record, int nRecords)
 {
-	getInput(record, nRecords);
-	printf("\nA record has been added!");
-	return nRecords+1;
+	int i, j;
+	int found = 0;
+    if (nRecords >= MAX_RECORDS) {
+        printf("||| The records database is full. Please delete some records to continue.\n");
+        return nRecords;
+    }
+
+    getInput(record, nRecords);
+
+    for (i = 0; i < nRecords; i++) 
+	{
+        for (j = 0; j < nRecords && found == 0; j++)
+			{
+				if (strcmp((record+i)->aQuestion,(record+j)->aQuestion) == 0 &&
+				    strcmp((record+i)->aAnswer,(record+j)->aAnswer) == 0)
+				{
+					found = 1;
+					printf("\n||| Record already exists.\n");
+					return nRecords;
+				}
+			}
+    }
+
+    printf("\n||| Record successfully added.\n");
+
+    return nRecords + 1;
 }
 
 
