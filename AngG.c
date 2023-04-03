@@ -15,15 +15,15 @@ struct record {
     char aQuestion[MAX_QUESTION_LENGTH];
     char aAnswer[MAX_ANSWER_LENGTH];
     char aTopic[MAX_TOPIC_LENGTH];
-    char aChoices[3][MAX_CHOICE_LENGTH];
+    char aChoicesOne[MAX_CHOICE_LENGTH];
+    char aChoicesTwo[MAX_CHOICE_LENGTH];
+    char aChoicesThree[MAX_CHOICE_LENGTH];
     int nQuestionNumber;
 }; 
 
 int inputPassword();
-void getString(aString *ptr);
 void getInput(struct record *record, int nRecords);
-void displayRecord();
-void addRecord();
+int addRecord(struct record *record, int nRecords);
 //void editRecord();
 //void deleteRecord();
 //void importRecord();
@@ -35,6 +35,9 @@ int main()
 	int nMDMChoice;
 	int nGMChoice;
 	int nPassCheck;
+	
+	struct record records[MAX_RECORDS];
+	int nRecord = 0;
 
 	do 
 	{
@@ -75,7 +78,7 @@ int main()
 	                    switch (nMDMChoice) 
 						{
 	                        case 1:
-	                            //addRecord();
+	                            nRecord = addRecord(records, nRecord);
 	                            break;
 	                        case 2:
 	                            //editRecord();
@@ -199,58 +202,154 @@ int inputPassword()
 	return isPass;
 }
 
-void getString(aString *ptr)
-{
-	char ch;
-	int i = 0;
-	aString characters;
-	
-	do
-	{
-		scanf("%c", &ch);
-		
-		if (ch != '\n')
-		{
-			characters[i] = ch;
-			i++;
-			characters[i] = '\0';
-		}
-	} while (i < MAX_SIZE && ch != '\n');
-	
-	strcpy(*ptr, characters);
-}
-
 void getInput(struct record *record, int nRecords)
 {
-	int i, x, j;
+	int i, j;
+	int current = nRecords - 1; 
+	int found = 0;
 	
+	if (((record+current)->aQuestion) != '\0')
+	{
+		fflush(stdin);
+		
+		printf("\nEnter question: ");
+		fgets(((record+nRecords)->aQuestion), MAX_QUESTION_LENGTH, stdin);
+		(record+nRecords)->aQuestion[strlen((record+nRecords)->aQuestion)-1] = '\0'; 
+				
+		printf("\nEnter answer: ");
+		fgets(((record+nRecords)->aAnswer), MAX_ANSWER_LENGTH, stdin);
+		(record+nRecords)->aAnswer[strlen((record+nRecords)->aAnswer)-1] = '\0'; 
+						
+		for (j = 0; j < nRecords && found == 0; j++)
+		{
+			if (strcmp((record+nRecords)->aQuestion,(record+j)->aQuestion) == 0 &&
+			    strcmp((record+nRecords)->aAnswer,(record+j)->aAnswer) == 0)
+			{
+				found = 1;
+			}
+		}
+		
+		if (found != 1)
+		{
+			do
+			{
+				printf("\nEnter topic: ");
+				fgets(((record+nRecords)->aTopic), MAX_TOPIC_LENGTH, stdin);
+				(record+nRecords)->aTopic[strlen((record+nRecords)->aTopic)-1] = '\0';  
+					
+				printf("Enter choice 1: ");
+				fgets(((record+nRecords)->aChoicesOne), MAX_CHOICE_LENGTH, stdin);
+				(record+nRecords)->aChoicesOne[strlen((record+nRecords)->aChoicesOne)-1] = '\0';  
+						
+				printf("Enter choice 2: ");
+				fgets(((record+nRecords)->aChoicesTwo), MAX_CHOICE_LENGTH, stdin);
+				(record+nRecords)->aChoicesTwo[strlen((record+nRecords)->aChoicesTwo)-1] = '\0';  
+						
+				printf("Enter choice 3: ");
+				fgets(((record+nRecords)->aChoicesThree), MAX_CHOICE_LENGTH, stdin);
+				(record+nRecords)->aChoicesThree[strlen((record+nRecords)->aChoicesThree)-1] = '\0';  	
+
+			}while((strcmp((record+nRecords)->aAnswer,(record+nRecords)->aChoicesOne) != 0 &&
+			 	    strcmp((record+nRecords)->aAnswer,(record+nRecords)->aChoicesTwo) != 0 &&
+			        strcmp((record+nRecords)->aAnswer,(record+nRecords)->aChoicesThree) != 0) ||
+				   (strcmp((record+nRecords)->aChoicesOne,(record+nRecords)->aChoicesTwo) == 0 ||
+				    strcmp((record+nRecords)->aChoicesTwo,(record+nRecords)->aChoicesThree) == 0 ||
+				    strcmp((record+nRecords)->aChoicesOne,(record+nRecords)->aChoicesThree) == 0));
+		}	
+		
+		else
+		{
+			printf("\nThis record already exists.");		
+		}
+	}
 	
-	if 
+	else
+	{
+		for (i = 0; i < nRecords; i++)
+		{
+			fflush(stdin);
+			
+			printf("\nEnter question: ");
+			fgets(((record+i)->aQuestion), MAX_QUESTION_LENGTH, stdin);
+			(record+i)->aQuestion[strlen((record+i)->aQuestion)-1] = '\0'; 
+				
+			printf("\nEnter answer: ");
+			fgets(((record+i)->aAnswer), MAX_ANSWER_LENGTH, stdin);
+			(record+i)->aAnswer[strlen((record+i)->aAnswer)-1] = '\0';  
+							
+			for (j = 0; j < nRecords && found == 0; j++)
+			{
+				if (strcmp((record+i)->aQuestion,(record+j)->aQuestion) == 0 &&
+				    strcmp((record+i)->aAnswer,(record+j)->aAnswer) == 0)
+				{
+					found = 1;
+				}
+			}
+			
+			if (found != 1)
+			{
+				do
+				{
+					printf("\nEnter topic: ");
+					fgets(((record+i)->aTopic), MAX_TOPIC_LENGTH, stdin);
+					(record+i)->aTopic[strlen((record+i)->aTopic)-1] = '\0'; 
+						
+					printf("Enter choice 1: ");
+					fgets(((record+i)->aChoicesOne), MAX_CHOICE_LENGTH, stdin);
+					(record+i)->aChoicesOne[strlen((record+i)->aChoicesOne)-1] = '\0'; 
+							
+					printf("Enter choice 2: ");
+					fgets(((record+i)->aChoicesTwo), MAX_CHOICE_LENGTH, stdin);
+					(record+i)->aChoicesTwo[strlen((record+i)->aChoicesTwo)-1] = '\0';  
+							
+					printf("Enter choice 3: ");
+					fgets(((record+i)->aChoicesThree), MAX_CHOICE_LENGTH, stdin);
+					(record+i)->aChoicesThree[strlen((record+i)->aChoicesThree)-1] = '\0';  	
+				}while((strcmp((record+i)->aAnswer,(record+i)->aChoicesOne) != 0 &&
+					    strcmp((record+i)->aAnswer,(record+i)->aChoicesTwo) != 0 &&
+					    strcmp((record+i)->aAnswer,(record+i)->aChoicesThree) != 0) ||
+					   (strcmp((record+i)->aChoicesOne,(record+i)->aChoicesTwo) == 0 ||
+					    strcmp((record+i)->aChoicesTwo,(record+i)->aChoicesThree) == 0 ||
+					    strcmp((record+i)->aChoicesOne,(record+i)->aChoicesThree) == 0));
+			}	
+			
+			else
+			{
+				printf("\nThis record already exists.");		
+			}	 
+		}		
+	}
 	
-	
-}
+} 
 
 
-void addRecord(struct record *record, int nRecords)
+int addRecord(struct record *record, int nRecords)
 {
-	
+	getInput(record, nRecords);
+	printf("\nA record has been added!");
+	return nRecords+1;
 }
 
 
 /*
-void displayRecord(struct record *record) 
+void displayRecord(struct record record[], int nRecord) 
 {	
-    printf("Topic: %s\n", record->aTopic);
-    printf("Question Number: %d\n", r->nQuestionNumber);
-    printf("Question: %s\n", record->aQuestion);
+	int i;
+	for (i = 0; i < nRecord; i++)
+	{
+    printf("Topic: %s\n", (record+i)->aTopic);
+    printf("Question Number: %d\n", (record+i)->nQuestionNumber);
+    printf("Question: %s\n", (record+i)->aQuestion);
    
     printf("Choices:\n");
-    printf("1. %s\n", record->aChoices[0]);
-    printf("2. %s\n", record->aChoices[1]);
-    printf("3. %s\n", record->aChoices[2]);
+    printf("1. %s\n", (record+i)->aChoices[0]);
+    printf("2. %s\n", (record+i)->aChoices[1]);
+    printf("3. %s\n", (record+i)->aChoices[2]);
     
-    printf("Answer: %s\n", record->aAnswer);
-} */
-
+    printf("Answer: %s\n", (record+j)->aAnswer);
+    
+	}
+}
+*/
 
 
