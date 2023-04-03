@@ -2,10 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
-#define MAX_SIZE 100
+#define MAX_SIZE 200
+#define MAX_RECORDS 25
+#define MAX_QUESTION_LENGTH 150
+#define MAX_ANSWER_LENGTH 30
+#define MAX_TOPIC_LENGTH 20
+#define MAX_CHOICE_LENGTH 30
 
-void inputString(char aString[]);
+typedef char aString[MAX_SIZE];
+
+struct record {
+    char aQuestion[MAX_QUESTION_LENGTH];
+    char aAnswer[MAX_ANSWER_LENGTH];
+    char aTopic[MAX_TOPIC_LENGTH];
+    char aChoices[3][MAX_CHOICE_LENGTH];
+    int nQuestionNumber;
+}; 
+
 int inputPassword();
+void getString(aString *ptr);
+void getInput(struct record *record, int nRecords);
+void displayRecord();
+void addRecord();
+//void editRecord();
+//void deleteRecord();
+//void importRecord();
+//void exportRecord();
 
 int main() 
 {
@@ -53,10 +75,19 @@ int main()
 	                    switch (nMDMChoice) 
 						{
 	                        case 1:
-	                            
+	                            //addRecord();
 	                            break;
 	                        case 2:
-	                            
+	                            //editRecord();
+	                            break;
+	                        case 3:
+	                            //deleteRecord();
+	                            break;
+	                        case 4:
+	                            //importRecord();
+	                            break;
+	                        case 5:
+	                            //exportRecord();
 	                            break;
 	                        case 6:
 	                            printf("\n||| Going back to Main Menu...\n");
@@ -113,7 +144,7 @@ int main()
 
 int inputPassword()
 {
-	char aPassword[MAX_SIZE];
+	aString aPassword;
 	strcpy(aPassword, "password");
 	strcat(aPassword, "");
 	
@@ -168,19 +199,58 @@ int inputPassword()
 	return isPass;
 }
 
-void inputString(char aString[])
+void getString(aString *ptr)
 {
 	char ch;
 	int i = 0;
+	aString characters;
 	
 	do
 	{
 		scanf("%c", &ch);
+		
 		if (ch != '\n')
 		{
-			aString[i] = ch;
+			characters[i] = ch;
 			i++;
-			aString[i] = '\0';
+			characters[i] = '\0';
 		}
 	} while (i < MAX_SIZE && ch != '\n');
+	
+	strcpy(*ptr, characters);
 }
+
+void getInput(struct record *record, int nRecords)
+{
+	int i, x, j;
+	
+	
+	if 
+	
+	
+}
+
+
+void addRecord(struct record *record, int nRecords)
+{
+	
+}
+
+
+/*
+void displayRecord(struct record *record) 
+{	
+    printf("Topic: %s\n", record->aTopic);
+    printf("Question Number: %d\n", r->nQuestionNumber);
+    printf("Question: %s\n", record->aQuestion);
+   
+    printf("Choices:\n");
+    printf("1. %s\n", record->aChoices[0]);
+    printf("2. %s\n", record->aChoices[1]);
+    printf("3. %s\n", record->aChoices[2]);
+    
+    printf("Answer: %s\n", record->aAnswer);
+} */
+
+
+
