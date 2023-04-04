@@ -18,12 +18,12 @@ struct record {
     char sChoicesOne[MAX_CHOICE_LENGTH];
     char sChoicesTwo[MAX_CHOICE_LENGTH];
     char sChoicesThree[MAX_CHOICE_LENGTH];
-    int nQuestionNumber;
+    int nQuestionNum;
 }; 
 
 int inputPassword();
 void getInput(struct record *record, int nRecords);
-//void displayRecord(struct record record*, int nRecords);
+//void displayRecord(struct record *record, int nRecords);
 int displayUniqueTopics(struct record *record, int nRecords);
 int addRecord(struct record *record, int nRecords);
 void editRecord(struct record *record, int nRecords);
@@ -82,7 +82,7 @@ int main()
 	                        case 1:
 	                            nRecord = addRecord(aRecords, nRecord);
 	                            printf("\nNumber of Records: %d\n", nRecord);
-	                        //    displayRecord(aRecords, nRecord);
+	                            //displayRecord(aRecords, nRecord);
 	                            break;
 	                        case 2:
 	                            editRecord(aRecords, nRecord);
@@ -205,9 +205,12 @@ int inputPassword()
 
 void getInput(struct record *record, int nRecords)
 {
-	int i, j;
+	int i, j, k;
 	int nCurrent = nRecords - 1; 
 	int bFound = 0;
+	int bFoundUniqueTopic = 0;
+	int nTopicNum = 1;
+	char sUniqueTopics[MAX_RECORDS][MAX_TOPIC_LENGTH];
 	
 	if (((record+nCurrent)->sQuestion) != '\0')
 	{
@@ -221,10 +224,10 @@ void getInput(struct record *record, int nRecords)
 		fgets(((record+nRecords)->sAnswer), MAX_ANSWER_LENGTH, stdin);
 		(record+nRecords)->sAnswer[strlen((record+nRecords)->sAnswer)-1] = '\0'; 
 						
-		for (j = 0; j < nRecords && bFound == 0; j++)
+		for (i = 0; i < nRecords && bFound == 0; i++)
 		{
-			if (strcmp((record+nRecords)->sQuestion,(record+j)->sQuestion) == 0 &&
-			    strcmp((record+nRecords)->sAnswer,(record+j)->sAnswer) == 0)
+			if (strcmp((record+nRecords)->sQuestion,(record+i)->sQuestion) == 0 &&
+			    strcmp((record+nRecords)->sAnswer,(record+i)->sAnswer) == 0)
 			{
 				bFound = 1;
 			} 
@@ -233,8 +236,35 @@ void getInput(struct record *record, int nRecords)
 		if (bFound != 1)
 		{
 			printf("\n||| Enter topic: ");
-				fgets(((record+nRecords)->sTopic), MAX_TOPIC_LENGTH, stdin);
-				(record+nRecords)->sTopic[strlen((record+nRecords)->sTopic)-1] = '\0';  
+			fgets(((record+nRecords)->sTopic), MAX_TOPIC_LENGTH, stdin);
+			(record+nRecords)->sTopic[strlen((record+nRecords)->sTopic)-1] = '\0';  
+				
+			for (j = 0; j < nRecords && bFoundUniqueTopic == 0; j++)
+			{
+				if (strcmp((record+nRecords)->sTopic, sUniqueTopics[j]) == 0)
+				{
+					bFoundUniqueTopic = 1;
+				}
+			}
+			
+			for (j = 0; j < nRecords && bFoundUniqueTopic == 0; j++)
+			{
+				if((bFoundUniqueTopic == 0) && (sUniqueTopics[j] == '\0'))
+				{
+					strcpy(sUniqueTopics[nTopicNum], (record+nRecords)->sTopic);
+					bFoundUniqueTopic = 1;
+				} 
+			}
+			
+			for (j = 0; j < nRecords; j++)
+			{
+				if (strcmp((record+nRecords)->sTopic, (record+j)->sTopic) == 0)
+				{
+					nTopicNum++;
+				}
+			}
+							
+			(record+nRecords)->nQuestionNum = nTopicNum;
 
 			do
 			{	
@@ -277,7 +307,34 @@ void getInput(struct record *record, int nRecords)
 			printf("\n||| Enter topic: ");
 			fgets(((record+i)->sTopic), MAX_TOPIC_LENGTH, stdin);
 			(record+i)->sTopic[strlen((record+i)->sTopic)-1] = '\0'; 
+			
+			for (j = 0; j < nRecords && bFoundUniqueTopic == 0; j++)
+			{
+				if (strcmp((record+i)->sTopic, sUniqueTopics[j]) == 0)
+				{
+					bFoundUniqueTopic = 1;
+				}
+			}
+			
+			for (j = 0; j < nRecords && bFoundUniqueTopic == 0; j++)
+			{
+				if((bFoundUniqueTopic == 0) && (sUniqueTopics[j] == '\0'))
+				{
+					strcpy(sUniqueTopics[nTopicNum], (record+i)->sTopic);
+					bFoundUniqueTopic = 1;
+				} 
+			}
+			
+			for (j = 0; j < nRecords; j++)
+			{
+				if (strcmp((record+i)->sTopic, (record+j)->sTopic) == 0)
+				{
+					nTopicNum++;
+				}
+			}
 							
+			(record+i)->nQuestionNum = nTopicNum;				
+			
 			do
 			{
 				printf("\n||| Enter choice 1: ");
@@ -306,7 +363,7 @@ void getInput(struct record *record, int nRecords)
 
 int addRecord(struct record *record, int nRecords)
 {
-	int j;
+	int i;
 	int bFound = 0;
 	
     if (nRecords >= MAX_RECORDS) 
@@ -318,10 +375,10 @@ int addRecord(struct record *record, int nRecords)
 	printf("\n-ADD RECORD-\n");
     getInput(record, nRecords);
 
-    for (j = 0; j < nRecords && bFound == 0; j++)
+    for (i = 0; i < nRecords && bFound == 0; i++)
 	{
-		if (strcmp((record+nRecords)->sQuestion,(record+j)->sQuestion) == 0 &&
-		    strcmp((record+nRecords)->sAnswer,(record+j)->sAnswer) == 0)
+		if (strcmp((record+nRecords)->sQuestion,(record+i)->sQuestion) == 0 &&
+		    strcmp((record+nRecords)->sAnswer,(record+i)->sAnswer) == 0)
 		{
 			bFound = 1;
 			printf("\n||| Record already exists.\n");
@@ -330,14 +387,14 @@ int addRecord(struct record *record, int nRecords)
 	}
 
     printf("\n||| Record successfully added.\n");
-
+	
     return nRecords + 1;
 }
 
 
 void editRecord(struct record *record, int nRecords)
 {
-	int i, j, h, k;
+	int i, j, k;
 	int nTopicChoice;
 	int nTopicsCounter;
     int yes = 0; // to check if yes or not so that it can end the loop
@@ -391,10 +448,6 @@ int displayUniqueTopics(struct record *record, int nRecords)
 	return nTopicNum;
 }
 
-
-
-
-
 /*
 void displayRecord(struct record *record, int nRecords) 
 {	
@@ -402,7 +455,7 @@ void displayRecord(struct record *record, int nRecords)
 	for (i = 0; i < nRecords; i++)
 	{
     printf("\nTopic: %s\n", (record+i)->sTopic);
-    printf("Question Number: %d\n", (record+i)->nQuestionNumber);
+    printf("Question Number: %d\n", (record+i)->nQuestionNum);
     printf("Question: %s\n", (record+i)->sQuestion);
    
     printf("Choices:\n");
