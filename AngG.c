@@ -25,7 +25,7 @@ struct record {
 int inputPassword();
 void getInput(struct record *record, int nRecords);
 //void displayRecord(struct record *record, int nRecords);
-void displayUniqueTopics(struct record *record, int nRecords);
+int displayUniqueTopics(struct record *record, int nRecords);
 int addRecord(struct record *record, int nRecords);
 void editRecord(struct record *record, int nRecords);
 void deleteRecord(struct record *record, int nRecords);
@@ -393,31 +393,114 @@ int addRecord(struct record *record, int nRecords)
 
 void editRecord(struct record *record, int nRecords)
 {
-	int i, j, k;
-	char sTopicChoice[MAX_TOPIC_LENGTH];
-    int yes = 0; // to check if yes or not so that it can end the loop
-    char ch;
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int nUniqueTopics;
+	int nRecordSelect = 0;
+	int nFoundQuestion = 0;
+	int nQuestionIndex[MAX_RECORDS];
+	int n;
+    int bTopicTrue = 1;
+	int bQuestionTrue = 1; 
+	int bSkipQuestion = 1;
+    char ch, ch1;
+    
     printf("\n-EDIT RECORD-\n");
+    nUniqueTopics = displayUniqueTopics(record, nRecords);
     
-    for (i = 0; i < nRecords; i++)
-    {
-	 		displayUniqueTopics(record, nRecords);
-			printf("||| Choose a topic: ");
-			fgets(sTopicChoice, MAX_TOPIC_LENGTH, stdin);
-			sTopicChoice[strlen(sTopicChoice)-1] = '\0';
-			
-			// if input is same as UniqueTopic string, we go next
-			// if it isnt repeat the input 
-	
-	}
- 	
-	    
-			
-    	
-    
-	
-	
+	do
+	{
+		if (i == nUniqueTopics && bTopicTrue == 1)
+		{
+			i = 0;
+		}
+		printf("i = %d\n", i);
 
+		printf("||| Choose %s?", (record+i)->sUniqueTopics);
+		scanf(" %c", &ch);
+		
+		if (ch == 'y' || ch == 'Y')
+		{
+			bTopicTrue = 0;
+		}
+		else
+		{
+			i++;
+			bTopicTrue = 1;
+		}
+	} while (i <= nUniqueTopics && bTopicTrue == 1);
+	
+	nRecordSelect = i; 
+	
+	printf("\nHere are the questions under TOPIC '%s'.\n", (record+nRecordSelect)->sUniqueTopics);
+	for (j = 0; j < nRecords; j++)
+	{
+		if (strcmp((record+nRecordSelect)->sUniqueTopics,(record+j)->sTopic) == 0)
+		{
+			printf("%d. %s\n", (record+j)->nQuestionNum, (record+j)->sQuestion);
+			nQuestionIndex[nFoundQuestion++] = j;	
+		}
+		else
+		{
+			nQuestionIndex[nFoundQuestion++] = 0;
+		}
+	}
+	
+	for (j = 0; j < nFoundQuestion; j++)
+	{
+		printf("%d\n", nFoundQuestion);
+		printf("[%d] Question Index %d\n", j, nQuestionIndex[j]);
+		printf(" %s\n", (record+j)->sTopic);
+	}
+	
+	do
+	{		
+		if (j == nFoundQuestion && bQuestionTrue == 1)
+		{
+			j = 0;
+		}
+		
+		if (strcmp((record+nRecordSelect)->sUniqueTopics,(record+j)->sTopic) == 0)
+		{
+			bSkipQuestion = 0;
+		}
+		
+		else
+		{
+			bSkipQuestion = 1;
+		}
+			
+		if (bSkipQuestion == 0)
+		{
+			printf("j = %d\n", j);
+			printf(" %s\n", (record+j)->sTopic);
+			printf("||| Choose '%d. %s'?", (record+nQuestionIndex[j])->nQuestionNum, (record+nQuestionIndex[j])->sQuestion);
+			scanf(" %c", &ch1);
+			
+			if (ch1 == 'y' || ch1 == 'Y')
+			{
+				bQuestionTrue = 0;
+				
+			}
+			
+			else
+			{
+				j++;
+				bQuestionTrue = 1;
+			}
+		}
+		
+		else
+		{
+			printf("j = %d\n", j);
+			printf(" %s\n", (record+j)->sTopic);
+			j++;
+			bQuestionTrue = 1;
+		}
+		
+	} while (j <= nFoundQuestion && bQuestionTrue == 1);
+		
 }
 
 void deleteRecord(struct record *record, int nRecords)
@@ -425,7 +508,7 @@ void deleteRecord(struct record *record, int nRecords)
 	
 }
 
-void displayUniqueTopics(struct record *record, int nRecords)
+int displayUniqueTopics(struct record *record, int nRecords)
 {
 	int i, j;
 	int bFound;
@@ -435,11 +518,11 @@ void displayUniqueTopics(struct record *record, int nRecords)
 	{
 		bFound = 0;
 		
-		for (j = 0; j < nRecords; j++)
+		for (j = 0; j < nRecords && bFound == 0; j++)
 		{
 			if (strcmp((record+i)->sTopic, (record+j)->sUniqueTopics) == 0)
 			{
-				bFound++;
+				bFound = 1;
 			}
 		}
 		
@@ -454,6 +537,8 @@ void displayUniqueTopics(struct record *record, int nRecords)
 	{
 		printf("%d. %s\n", i+1, (record+i)->sUniqueTopics);
 	}
+	
+	return nTopicNum;
 }
 
 /*
