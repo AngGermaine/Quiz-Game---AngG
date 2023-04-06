@@ -3,7 +3,7 @@
 #include <string.h>
 #include <conio.h>
 #define MAX_SIZE 200
-#define MAX_RECORDS 21 //21 so that we put the no-longer-existing UniqueTopic at the end of the array
+#define MAX_RECORDS 25
 #define MAX_QUESTION_LENGTH 150
 #define MAX_ANSWER_LENGTH 30
 #define MAX_TOPIC_LENGTH 20
@@ -25,7 +25,6 @@ struct record {
 int inputPassword();
 void getInput(struct record *record, int nRecords);
 void displayRecord(struct record *record, int nRecords);
-//int displayUniqueTopics(struct record *record, int nRecords);
 int addRecord(struct record *record, int nRecords);
 int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum);
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum);
@@ -475,10 +474,11 @@ int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum)
     return nUniqueTopicNum;
 }
 
+
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 {
     int h, i, j, k, nEditSelect, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nTopicNum = 0, nQuestionIndex[MAX_RECORDS];
-    int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0;
+    int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0, bDuplicate = 0;
     char sEditInput[MAX_SIZE], ch, ch1;
     
     printf("\n-EDIT RECORD-\n");
@@ -652,24 +652,82 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 				bEnd = 1;
 			   	break;
 			case 2:
-			   	
-		
+			   	do 
+				{
+				    fflush(stdin);
+				    printf("||| Edit question: ");
+				    fgets(sEditInput, MAX_SIZE, stdin);
+				    sEditInput[strlen(sEditInput)-1] = '\0';
+				
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sQuestion) == 0 || 
+				                 strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0;
+				    bDuplicate = 0;
+				
+				    if (bSameInput) 
+					{
+				        printf("Please enter a different question.\n");
+				    } 
+					
+					else 
+					{
+				        for (k = 0; k < nRecords; k++) 
+						{
+				            if (strcmp(sEditInput, (record+k)->sQuestion) == 0 && k != nRecordIndex) 
+							{
+				                printf("Matches existing record. Please try again.\n");
+				                bDuplicate = 1;
+				        	}
+				    	}
+				
+				        if (!bDuplicate) 
+						{
+				            strcpy((record+nRecordIndex)->sQuestion, sEditInput);
+				            bFound = 1;
+				        }
+				    }
+				} while (!bFound && (bSameInput || bDuplicate));
+						 
+				bEnd = 1;		
 			   	break;
 			case 3:
-			   	
-		
+			   
+				
+				bEnd = 1;
 			   	break;
 			case 4:
 			   	
-			  
+			   	
+			  	bEnd = 1;
 			   	break;
 			case 5:
 			   	
-			   
+			   	
+			   	bEnd = 1;
 			   	break;
 			case 6:
-			   	
-			  
+			   	do 
+				{
+				    fflush(stdin);
+				    printf("||| Edit answer: ");
+				    fgets(sEditInput, MAX_SIZE, stdin);
+				    sEditInput[strlen(sEditInput)-1] = '\0';
+					
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sQuestion) == 0 || 
+				                 strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0;
+					
+				    if (bSameInput) 
+					{
+						bFound = 0;
+				        printf("Please enter a different answer.\n");
+				    } 
+					else 
+					{
+				        strcpy((record+nRecordIndex)->sAnswer, sEditInput);
+				        bFound = 1;
+				    }
+				} while (!bFound && bSameInput);
+			  	
+			  	bEnd = 1;
 			   	break;
 			case 7:
 				bEnd = 1;
@@ -685,43 +743,6 @@ void deleteRecord(struct record *record, int nRecords)
 {
 	
 }
-
-
-/*
-int displayUniqueTopics(struct record *record, int nRecords)
-{
-	int i,j;
-	int bFound;
-	int nTopicNum = 0;
-	
-	for (i = 0; i < nRecords; i++)
-	{
-		bFound = 0;
-		
-		for (j = 0; j < nRecords && bFound == 0; j++)
-		{
-			if (strcmp((record+i)->sTopic, (record+j)->sUniqueTopics) == 0)
-			{
-				bFound = 1;
-			}
-		}
-		
-		if (bFound == 0)
-		{
-			strcpy((record+nTopicNum)->sUniqueTopics, (record+i)->sTopic);
-			nTopicNum++;
-		}
-	}
-	
-	for (i = 0; i < nTopicNum; j++)
-	{
-			printf("%d. %s\n", i+1, (record+i)->sUniqueTopics);		
-	}
-	
-	return nTopicNum;
-	
-}
-*/
 
 void displayRecord(struct record *record, int nRecords) 
 {	
