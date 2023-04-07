@@ -72,9 +72,10 @@ int main()
             	{
             		do 
 					{
-						displayRecord(aRecords, nRecord);
-						printf("MDM = %d", nMDMChoice);
+						//displayRecord(aRecords, nRecord);
+						system("cls");
 	                    printf("\n-MANAGE DATA-\n");
+	                    printf("Number of Records: %d\n", nRecord);
 	                    printf("[1] Add record\n");
 	                    printf("[2] Edit record\n");
 	                    printf("[3] Delete record\n");
@@ -89,15 +90,13 @@ int main()
 						{
 	                        case 1:
 	                            nRecord = addRecord(aRecords, nRecord);
-	                            printf("\nNumber of Records: %d\n", nRecord);
-	                            
+	                            system("pause");
 	                            break;
 	                        case 2:
 	                        	do
 	                        	{
+	                        		system("cls");
 	                        		nUniqueTopicNum = 0;
-	                        		displayRecord(aRecords, nRecord);
-	                        		printf("\nnUniqueTopicNum = %d\n", nUniqueTopicNum);
 	                        		for (i = 0; i < nRecord; i++)
 	                        		{
 	                        			strcpy((aRecords+i)->sUniqueTopics,"");
@@ -107,9 +106,9 @@ int main()
 		                        	
 			                        do
 									{
-										printf("Would you still like to [1] edit or [2] go back to manage data menu? ");
+										printf("\n||| Would you still like to [1] Edit other records or [2] Return to Manage Data Menu? ");
 										scanf(" %d", &bEditRecordOption);
-											
+										system("cls");
 										if (bEditRecordOption == 1)
 										{
 											nUniqueTopicNum = 0;
@@ -127,7 +126,6 @@ int main()
 											
 									} while (bEditRecordOption < 1 || bEditRecordOption > 2);
 					
-	                        		
 								} while (bEndEdit == 0);
 	                        	
 	                            break;
@@ -155,7 +153,7 @@ int main()
                 // Play Game menu
                 do 
 				{
-					
+					system("cls");
                     printf("\nQUIZ GAME\n");
                     printf("[1] \n");
                     printf("[2] \n");
@@ -223,17 +221,16 @@ int inputPassword()
 		
 		if (strcmp(sPassword, aInputPass) == 0)
 		{
-			printf("\n\n||| Welcome, Admin.\n");
 			bIsPass = 1;
 		}	
 		else 
 		{
-			printf("\n\n||| Wrong password. Please try again.\n");
+			printf("\n||| Wrong password.\n");
 			bIsPass = 0;
 			
 			do
 			{
-				printf("||| Would you like to try again [1] or go back to Main Menu [2]? ");
+				printf("\n||| Would you like to try again [1] or go back to Main Menu [2]? ");
 				scanf("%d", &nMMreturn);
 				
 				if (nMMreturn == 1)
@@ -246,7 +243,6 @@ int inputPassword()
 					bIsPass = 6; //so in main, manage data menu's value is 6 which brings it back to the main menu
 				}	
 			} while (nMMreturn < 1 || nMMreturn > 2);
-			
 			
 		}
 	} while (bIsPass == 0);	
@@ -269,7 +265,7 @@ void getInput(struct record *record, int nRecords)
 		fgets(((record+nRecords)->sQuestion), MAX_QUESTION_LENGTH, stdin);
 		(record+nRecords)->sQuestion[strlen((record+nRecords)->sQuestion)-1] = '\0'; 
 				
-		printf("\n||| Enter answer: ");
+		printf("||| Enter answer: ");
 		fgets(((record+nRecords)->sAnswer), MAX_ANSWER_LENGTH, stdin);
 		(record+nRecords)->sAnswer[strlen((record+nRecords)->sAnswer)-1] = '\0'; 
 						
@@ -284,7 +280,7 @@ void getInput(struct record *record, int nRecords)
 		
 		if (bFound != 1)
 		{
-			printf("\n||| Enter topic: ");
+			printf("||| Enter topic: ");
 			fgets(((record+nRecords)->sTopic), MAX_TOPIC_LENGTH, stdin);
 			(record+nRecords)->sTopic[strlen((record+nRecords)->sTopic)-1] = '\0';  
 				
@@ -478,8 +474,8 @@ int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum)
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 {
     int h, i, j, k, nEditSelect, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nTopicNum = 0, nQuestionIndex[MAX_RECORDS];
-    int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0, bDuplicate = 0;
-    char sEditInput[MAX_SIZE], ch, ch1;
+    int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0, bDuplicate = 0, bEditChoice = 0;
+    char sEditInput[MAX_SIZE], ch, ch1, cAnswer;
     
     printf("\n-EDIT RECORD-\n");
 
@@ -491,8 +487,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 	
 	while (bEnd == 0)
 	{
-		printf("nUniqueTopicNum = %d\n", nUniqueTopicNum);
-		
+		printf("~|| Here are the unique topics.\n");
 		for (h = 0; h < nRecords; h++)
 		{
 			if (strcmp((record+h)->sUniqueTopics, "\0") != 0 && h != nUniqueTopicNum)
@@ -530,7 +525,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 		nRecordSelect = i; 
 		
 			
-		printf("\n~|| Here are the questions under TOPIC '%s'.\n", (record+nRecordSelect)->sUniqueTopics);
+		printf("\n~|| Here are the questions under TOPIC: '%s'.\n", (record+nRecordSelect)->sUniqueTopics);
 		
 		for (j = 0; j < nRecords; j++) //index through the records and compare sTopic to chosen UniqueTopic name, if it finds the same on any index of record add it to the nQuestionIndex array. If it isnt add 0 instead of the value of j.
 		{
@@ -590,7 +585,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 		} while (j <= nFoundQuestion && bQuestionTrue == 1);
 			
 		nRecordIndex = j; 
-			    
+		system("cls");	    
 	    printf("\n-EDITING RECORD #%d-\n", nRecordIndex+1);
 		printf("Topic: %s\n", (record+nRecordIndex)->sTopic);
 		printf("Question Number: %d\n", (record+nRecordIndex)->nQuestionNum);
@@ -608,7 +603,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 		printf("[5] Choice 3\n");
 		printf("[6] Answer\n");
 		printf("[7] Exit\n");
-		printf("||| Enter your choice: ");
+		printf("||| Enter an option: ");
 		scanf("%d", &nEditSelect);
 			    
 		switch(nEditSelect)
@@ -637,18 +632,17 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 						}
 								    		            
 						(record+nRecordIndex)->nQuestionNum = nTopicNum;
-
 				        
 				        bSameInput = 0;
 				    } 
 					
 					else 
 					{
-				        printf("Please enter a different topic name.\n");
+				        printf("||| Please enter a different topic name.\n");
 				        bSameInput = 1;
 				    }
 				} while (strcmp(sEditInput, (record+nRecordIndex)->sTopic) == 0 && bSameInput == 1);	
-				
+				printf("||| Edit successful.\n");
 				bEnd = 1;
 			   	break;
 			case 2:
@@ -665,7 +659,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 				
 				    if (bSameInput) 
 					{
-				        printf("Please enter a different question.\n");
+				        printf("||| Please enter a different question.\n");
 				    } 
 					
 					else 
@@ -674,7 +668,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 						{
 				            if (strcmp(sEditInput, (record+k)->sQuestion) == 0 && k != nRecordIndex) 
 							{
-				                printf("Matches existing record. Please try again.\n");
+				                printf("||| Matches existing record. Please try again.\n");
 				                bDuplicate = 1;
 				        	}
 				    	}
@@ -686,23 +680,232 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 				        }
 				    }
 				} while (!bFound && (bSameInput || bDuplicate));
-						 
+				printf("||| Edit successful.\n");		 
 				bEnd = 1;		
 			   	break;
 			case 3:
-			   
+				do 
+				{
+				    fflush(stdin);
+				    printf("||| Edit choice one: ");
+				    fgets(sEditInput, MAX_SIZE, stdin);
+				    sEditInput[strlen(sEditInput)-1] = '\0';
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sChoicesOne) == 0;
+				    bDuplicate = 0;
 				
-				bEnd = 1;
+				    if ((strcmp(sEditInput, (record+nRecordIndex)->sChoicesTwo) == 0 || 
+				            strcmp(sEditInput, (record+nRecordIndex)->sChoicesThree) == 0) &&
+							strcmp(sEditInput, (record+nRecordIndex)->sAnswer) != 0 &&
+							!bEditChoice) 
+				    {
+				        printf("||| Matches existing choice. Please try again.\n");
+				        bDuplicate = 1;
+				    }
+				    else 
+				    {
+				        if (strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0) 
+				        {
+				            bEditChoice = 0;
+				            do
+				            {
+				                printf("||| Warning: The choice is the current record's answer.\n");
+				                printf("||| Do you still want to edit [y/n]? ");
+				                scanf(" %c", &cAnswer);
+				
+				                if (cAnswer == 'y' || cAnswer == 'Y')
+				                {
+				                    bEditChoice = 1;
+				                    bFound = 1;
+				                }
+				                else if (cAnswer == 'n' || cAnswer == 'N')
+				                {
+				                    bEditChoice = 0;
+				                    bFound = 1;
+				                }
+				                else
+				                {
+				                    printf("||| Invalid input. Please try again.\n");
+				                }
+				            } while (!bFound);
+				        }
+				            
+				        else 
+				        {
+				            bEditChoice = 1;
+				            bFound = 1;
+				        }
+				    }
+				    
+				} while (!bFound && bDuplicate && !bEditChoice); 
+				
+				if (bEditChoice)
+				{
+				    strcpy((record+nRecordIndex)->sChoicesOne, sEditInput);
+				}
+				if (bEditChoice && (cAnswer == 'y' || cAnswer == 'Y'))
+				{
+					printf("||| Warning: You have saved the current record's answer. I suggest you edit again.\n");
+				}
+				
+				if (bSameInput)
+				{
+				    	printf("||| Edit unsuccessful, nothing was changed.\n");
+				    	bEnd = 1;
+				}	
+				else
+				{
+					printf("||| Edit successful.\n");
+					bEnd = 1;	
+				}
 			   	break;
 			case 4:
-			   	
-			   	
-			  	bEnd = 1;
+			   	do 
+				{
+				    fflush(stdin);
+				    printf("||| Edit choice two: ");
+				    fgets(sEditInput, MAX_SIZE, stdin);
+				    sEditInput[strlen(sEditInput)-1] = '\0';
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sChoicesTwo) == 0;
+				    bDuplicate = 0;
+				    
+				    if ((strcmp(sEditInput, (record+nRecordIndex)->sChoicesOne) == 0 || 
+				         strcmp(sEditInput, (record+nRecordIndex)->sChoicesThree) == 0) &&
+						 strcmp(sEditInput, (record+nRecordIndex)->sAnswer) != 0 &&
+						 !bEditChoice) 
+				    {
+				        printf("||| Matches existing choice. Please try again.\n");
+				        bDuplicate = 1;
+				    }
+				    else 
+				    {
+				        if (strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0) 
+				        {
+				            bEditChoice = 0;
+				            do
+				            {
+				                printf("||| Warning: The choice is the current record's answer.\n");
+				                printf("||| Do you still want to edit [y/n]? ");
+				                scanf(" %c", &cAnswer);
+				
+				                if (cAnswer == 'y' || cAnswer == 'Y')
+				                {
+				                    bEditChoice = 1;
+				                    bFound = 1;
+				                }
+				                else if (cAnswer == 'n' || cAnswer == 'N')
+				                {
+				                    bEditChoice = 0;
+				                    bFound = 1;
+				                }
+				                else
+				                {
+				                    printf("||| Invalid input. Please try again.\n");
+				                }
+				            } while (!bFound);
+				        }
+				        else 
+				        {
+				            bEditChoice = 1;
+				            bFound = 1;
+				        }
+				    }
+				    
+				} while (!bFound && bDuplicate && !bEditChoice); 
+				
+				if (bEditChoice)
+				{
+				    strcpy((record+nRecordIndex)->sChoicesTwo, sEditInput);
+				}
+			   	if (bEditChoice && (cAnswer == 'y' || cAnswer == 'Y'))
+				{
+					printf("||| Warning: You have saved the current record's answer. I suggest you edit again.\n");
+				}
+				
+				if (bSameInput)
+				{
+				    	printf("||| Edit unsuccessful, nothing was changed.\n");
+				    	bEnd = 1;
+				}	
+				else
+				{
+					printf("||| Edit successful.\n");
+					bEnd = 1;	
+				}
+				
 			   	break;
 			case 5:
-			   	
-			   	
-			   	bEnd = 1;
+				do 
+				{
+				    fflush(stdin);
+				    printf("||| Edit choice three: ");
+				    fgets(sEditInput, MAX_SIZE, stdin);
+				    sEditInput[strlen(sEditInput)-1] = '\0';
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sChoicesThree) == 0;
+				    bDuplicate = 0;
+				
+				    if ((strcmp(sEditInput, (record+nRecordIndex)->sChoicesOne) == 0 || 
+				         strcmp(sEditInput, (record+nRecordIndex)->sChoicesTwo) == 0) &&
+					     strcmp(sEditInput, (record+nRecordIndex)->sAnswer) != 0 &&
+						 !bEditChoice) 
+				    {
+				        printf("||| Matches existing choice. Please try again.\n");
+				        bDuplicate = 1;
+				    }
+				    else 
+				    {
+				        if (strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0) 
+				        {
+				            bEditChoice = 0;
+				            do
+				            {
+				                printf("||| Warning: The choice is the current record's answer.\n");
+				                printf("||| Do you still want to edit [y/n]? ");
+				                scanf(" %c", &cAnswer);
+				
+				                if (cAnswer == 'y' || cAnswer == 'Y')
+				                {
+				                    bEditChoice = 1;
+				                    bFound = 1;
+				                }
+				                else if (cAnswer == 'n' || cAnswer == 'N')
+				                {
+				                    bEditChoice = 0;
+				                    bFound = 1;
+				                }
+				                else
+				                {
+				                        printf("||| Invalid input. Please try again.\n");
+				                    }
+				            } while (!bFound);
+				        }
+				        else 
+				        {
+				                bEditChoice = 1;
+				                bFound = 1;
+				        }
+				    }
+				    
+				} while (!bFound && bDuplicate && !bEditChoice); 
+				
+				if (bEditChoice)
+				{
+				    strcpy((record+nRecordIndex)->sChoicesThree, sEditInput);
+				}
+			   	if (bEditChoice && (cAnswer == 'y' || cAnswer == 'Y'))
+				{
+					printf("||| Warning: You have saved the current record's answer. I suggest you edit again.\n");
+				}
+				
+				if (bSameInput)
+				{
+				    	printf("||| Edit unsuccessful, nothing was changed.\n");
+				    	bEnd = 1;
+				}	
+				else
+				{
+					printf("||| Edit successful.\n");
+					bEnd = 1;	
+				}
 			   	break;
 			case 6:
 			   	do 
@@ -718,15 +921,17 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 				    if (bSameInput) 
 					{
 						bFound = 0;
-				        printf("Please enter a different answer.\n");
+				        printf("||| Please enter a different answer.\n");
 				    } 
+				    
 					else 
 					{
 				        strcpy((record+nRecordIndex)->sAnswer, sEditInput);
 				        bFound = 1;
 				    }
+				    
 				} while (!bFound && bSameInput);
-			  	
+				printf("||| Edit successful.\n");
 			  	bEnd = 1;
 			   	break;
 			case 7:
@@ -760,10 +965,5 @@ void displayRecord(struct record *record, int nRecords)
 	    printf("3. %s\n", (record+i)->sChoicesThree);
 	    
 	    printf("Answer: %s\n", (record+i)->sAnswer);
-	    
 	}
-
 }
-
-
-
