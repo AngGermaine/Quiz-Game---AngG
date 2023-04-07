@@ -30,7 +30,7 @@ int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum);
 void updateQuestionNumber(struct record *record, int nRecords);
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum);
-//void importRecord();
+int importRecord(struct record *record, int nRecords);
 //void exportRecord();
 
 int main() 
@@ -169,12 +169,25 @@ int main()
 	                            
 	                            break;
 	                        case 4:
-	                            //importRecord();
+	                            nRecord = importRecord(aRecords, nRecord);
+	                            system("pause");
 	                            break;
 	                        case 5:
-	                            //exportRecord();
+	                            //exportRecord(aRecords, nRecord);
 	                            break;
 	                        case 6:
+	                        	for (i = 0; i < nRecord; i++)
+	                        	{
+	                        		strcpy((aRecords+i)->sTopic, "");
+									(aRecords+i)->nQuestionNum = 0;
+									strcpy((aRecords+i)->sQuestion, "");
+									strcpy((aRecords+i)->sChoicesOne, "");
+									strcpy((aRecords+i)->sChoicesTwo, "");
+									strcpy((aRecords+i)->sChoicesThree, "");
+									strcpy((aRecords+i)->sAnswer, "");	
+								}
+								nRecord = 0;
+								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
 	                            printf("\n||| Going back to Main Menu...\n");
 	                            break;
 	                        default:
@@ -191,8 +204,8 @@ int main()
 				{
 					system("cls");
                     printf("\nQUIZ GAME\n");
-                    printf("[1] \n");
-                    printf("[2] \n");
+                    printf("[1] Play\n");
+                    printf("[2] View Scores\n");
                     printf("[3] Back to Main Menu\n");
 
                     printf("||| Enter your choice: ");
@@ -535,7 +548,7 @@ void updateQuestionNumber(struct record *record, int nRecords)
 
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 {
-    int h, i, j, k, nEditSelect, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nTopicNum = 0, nQuestionIndex[MAX_RECORDS];
+    int h, i, j, k, nEditSelect, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nQuestionIndex[MAX_RECORDS];
     int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0, bDuplicate = 0, bEditChoice = 0;
     char sEditInput[MAX_SIZE], ch, ch1, cAnswer;
     
@@ -648,7 +661,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 			
 		nRecordIndex = j; 
 		system("cls");	    
-	    printf("\n-EDITING RECORD #%d-\n", nRecordIndex+1);
+	    printf("\n-EDITING RECORD-\n");
 		printf("Topic: %s\n", (record+nRecordIndex)->sTopic);
 		printf("Question Number: %d\n", (record+nRecordIndex)->nQuestionNum);
 		printf("Question: %s\n", (record+nRecordIndex)->sQuestion);
@@ -671,7 +684,6 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 		switch(nEditSelect)
 		{
 		    case 1:
-		    	nTopicNum = 0;
 				do 
 				{
 				    fflush(stdin);
@@ -999,7 +1011,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 
 int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 {
-	int h, i, j, k, l, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nQuestionIndex[MAX_RECORDS];
+	int h, i, j, k, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nQuestionIndex[MAX_RECORDS];
     int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bDeleteRecord = 0;
     char ch, ch1, cDelete;
     
@@ -1159,6 +1171,88 @@ int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 		} while (!bDeleteRecord && !bEnd) ;
 	}
 	
+	return nRecords;
+}
+
+int importRecord(struct record *record, int nRecords)
+{
+	aString sFileName;
+	int i, nCurrentIndex = nRecords, nLength = 0;
+	char sReadText[150];
+	FILE *fp;
+	printf("\n-IMPORT FILE-\n");
+	
+	do
+	{
+		fflush(stdin);
+		printf("||| Input filename: ");
+		fgets(sFileName, MAX_SIZE, stdin);
+		sFileName[strlen(sFileName)-1] = '\0';
+		
+		fp = fopen(sFileName, "r");
+		if (fp == NULL)
+		{
+			printf("\n||| File not found. Please try again.\n");
+		}
+	} while (fp == NULL);
+	
+	i = 0;
+	
+	while (fgets(sReadText, sizeof(sReadText), fp) != NULL)
+	{
+		nLength = strlen(sReadText);
+		
+		if (nLength > 0 && sReadText[nLength-1] == '\n')
+		{
+			sReadText[nLength-1] = '\0';
+		}
+		
+		switch(i)
+		{
+			case 0:
+				strcpy((record+nCurrentIndex)->sTopic, sReadText);
+				break;
+			case 1:
+				(record+nCurrentIndex)->nQuestionNum = atoi(sReadText);
+				break;
+			case 2:
+				strcpy((record+nCurrentIndex)->sQuestion, sReadText);
+				break;
+			case 3:
+				strcpy((record+nCurrentIndex)->sChoicesOne, sReadText);
+				break;
+			case 4:
+				strcpy((record+nCurrentIndex)->sChoicesTwo, sReadText);
+				break;
+			case 5:
+				strcpy((record+nCurrentIndex)->sChoicesThree, sReadText);
+				break;
+			case 6:
+				strcpy((record+nCurrentIndex)->sAnswer, sReadText);
+				break;
+			case 7:
+				nCurrentIndex++;
+		}
+		
+		i++;
+		
+		if (i > 7)
+		{
+			i = 0;
+		}
+	}
+	
+	if (nCurrentIndex == nRecords)
+	{
+		printf("\n||| No records imported.\n");
+	}
+	else
+	{
+		printf("||| Records have been imported.\n");
+		nRecords = nCurrentIndex;
+	}
+	
+	fclose(fp);
 	return nRecords;
 }
 
