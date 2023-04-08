@@ -9,7 +9,7 @@
 #define MAX_TOPIC_LENGTH 20
 #define MAX_CHOICE_LENGTH 30
 
-typedef char aString[MAX_SIZE];
+typedef char string30[30];
 
 struct record {
     char sQuestion[MAX_QUESTION_LENGTH];
@@ -30,8 +30,9 @@ int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum);
 void updateQuestionNumber(struct record *record, int nRecords);
 void editRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum);
+int stringToInt(char *str);
 int importRecord(struct record *record, int nRecords);
-//void exportRecord();
+void exportRecord(struct record *record, int nRecords);
 
 int main() 
 {
@@ -91,6 +92,7 @@ int main()
 						{
 	                        case 1:
 	                            nRecord = addRecord(aRecords, nRecord);
+	                            printf("\n");
 	                            system("pause");
 	                            break;
 	                        case 2:
@@ -134,8 +136,6 @@ int main()
 	                        	{
 	                        		system("cls");
 	                        		nUniqueTopicNum = 0;
-	                        		printf("nUniqueTopicNum = %d", nUniqueTopicNum);
-	                        		printf("nRecord = %d", nRecord);
 	                        		for (i = 0; i < nRecord; i++)
 	                        		{
 	                        			strcpy((aRecords+i)->sUniqueTopics,"");
@@ -170,10 +170,12 @@ int main()
 	                            break;
 	                        case 4:
 	                            nRecord = importRecord(aRecords, nRecord);
+	                            updateQuestionNumber(aRecords, nRecord);
+	                            printf("\n");
 	                            system("pause");
 	                            break;
 	                        case 5:
-	                            //exportRecord(aRecords, nRecord);
+	                            exportRecord(aRecords, nRecord);
 	                            break;
 	                        case 6:
 	                        	for (i = 0; i < nRecord; i++)
@@ -188,7 +190,8 @@ int main()
 								}
 								nRecord = 0;
 								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
-	                            printf("\n||| Going back to Main Menu...\n");
+	                            printf("\n||| Going back to Main Menu...\n\n");
+	                            system("pause");
 	                            break;
 	                        default:
 	                            printf("||| Invalid choice. Please try again.\n");
@@ -241,7 +244,7 @@ int main()
 
 int inputPassword()
 {
-	aString sPassword;
+	string30 sPassword;
 	strcpy(sPassword, "password");
 	strcat(sPassword, "");
 	
@@ -695,9 +698,7 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 					{
 						
 				        strcpy((record+nRecordIndex)->sTopic, sEditInput);
-				        
 				        updateQuestionNumber(record, nRecords);
-				
 				        bSameInput = 0;
 				    } 
 					
@@ -1015,7 +1016,7 @@ int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
     int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bDeleteRecord = 0;
     char ch, ch1, cDelete;
     
-    printf("\n-EDIT RECORD-\n");
+    printf("\n-DELETE RECORD-\n");
 
     if (nRecords == 0)
     {
@@ -1174,77 +1175,127 @@ int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 	return nRecords;
 }
 
+int stringToInt(char *str)
+{
+    int nResult = 0;
+    int i = 0;
+
+    /* Convert string to integer by comparing ascii values and subtracting them with 0. 
+		Assigning the result to nResult. The i is acts as the counter for which element it is at in the string array.
+    */
+    while (str[i] != '\0') {
+        nResult = nResult * 10 + str[i] - '0';
+        i++;
+    }
+
+    return nResult;
+}
+
 int importRecord(struct record *record, int nRecords)
 {
-	aString sFileName;
-	int i, nCurrentIndex = nRecords, nLength = 0;
+	string30 sFileName;
+	int i, j, nCurrentIndex = nRecords;
+	int bFoundDuplicate = 0;
 	char sReadText[150];
 	FILE *fp;
-	printf("\n-IMPORT FILE-\n");
+	printf("\n-IMPORT RECORD-\n");
 	
 	do
 	{
 		fflush(stdin);
 		printf("||| Input filename: ");
-		fgets(sFileName, MAX_SIZE, stdin);
+		fgets(sFileName, 30, stdin);
 		sFileName[strlen(sFileName)-1] = '\0';
 		
 		fp = fopen(sFileName, "r");
 		if (fp == NULL)
 		{
-			printf("\n||| File not found. Please try again.\n");
+			printf("||| File not found. Please try again.\n\n");
 		}
 	} while (fp == NULL);
 	
 	i = 0;
 	
-	while (fgets(sReadText, sizeof(sReadText), fp) != NULL)
+	while (fgets(sReadText, sizeof(sReadText), fp) != NULL && nCurrentIndex < MAX_RECORDS) 
 	{
-		nLength = strlen(sReadText);
-		
-		if (nLength > 0 && sReadText[nLength-1] == '\n')
+	    int nLength = strlen(sReadText);
+			
+	    if (nLength > 0 && sReadText[nLength-1] == '\n') 
 		{
-			sReadText[nLength-1] = '\0';
+	        sReadText[nLength-1] = '\0';
+	    }
+			
+	    switch(i) 
+		{
+	        case 0:
+	            strcpy((record+nCurrentIndex)->sTopic, sReadText);
+	            break;
+	        case 1:
+	            (record+nCurrentIndex)->nQuestionNum = stringToInt(sReadText);
+	            break;
+	        case 2:
+	            strcpy((record+nCurrentIndex)->sQuestion, sReadText);
+	            break;
+	        case 3:
+	            strcpy((record+nCurrentIndex)->sChoicesOne, sReadText);
+	            break;
+	        case 4:
+	            strcpy((record+nCurrentIndex)->sChoicesTwo, sReadText);
+	            break;
+	        case 5:
+	            strcpy((record+nCurrentIndex)->sChoicesThree, sReadText);
+	            break;
+	        case 6:
+	            strcpy((record+nCurrentIndex)->sAnswer, sReadText);
+	            break;
+	        case 7:
+	        	bFoundDuplicate = 0;
+	        	for (j = 0; (j < nCurrentIndex && !bFoundDuplicate); j++)
+	        	{
+	        		if (strcmp((record+nCurrentIndex)->sQuestion,(record+j)->sQuestion) == 0 &&
+					    strcmp((record+nCurrentIndex)->sAnswer,(record+j)->sAnswer) == 0)
+					{
+						bFoundDuplicate = 1;
+					}
+				}
+				if (!bFoundDuplicate)
+				{
+					nCurrentIndex++;	
+				}
+	        	break;
+	    }
+			
+	    i++;
+			
+	    if (i == 8) 
+		{
+	        i = 0;
+	    }
+	}
+	/*
+	//Conditions these cover, if it is at the end of the file so ignores newline, if there is only one record. 
+	The previous block of code at case 7 does have the same purpose, but it does not cover if there is only one record.
+	*/
+	if (i == 7 && nCurrentIndex < MAX_RECORDS && feof(fp)) 
+	{
+	    bFoundDuplicate = 0;
+	    for (j = 0; (j < nCurrentIndex && !bFoundDuplicate); j++)
+	    {
+	        if (strcmp((record+nCurrentIndex)->sQuestion,(record+j)->sQuestion) == 0 &&
+				strcmp((record+nCurrentIndex)->sAnswer,(record+j)->sAnswer) == 0)
+			{
+				bFoundDuplicate = 1;
+			}
 		}
-		
-		switch(i)
+		if (!bFoundDuplicate)
 		{
-			case 0:
-				strcpy((record+nCurrentIndex)->sTopic, sReadText);
-				break;
-			case 1:
-				(record+nCurrentIndex)->nQuestionNum = atoi(sReadText);
-				break;
-			case 2:
-				strcpy((record+nCurrentIndex)->sQuestion, sReadText);
-				break;
-			case 3:
-				strcpy((record+nCurrentIndex)->sChoicesOne, sReadText);
-				break;
-			case 4:
-				strcpy((record+nCurrentIndex)->sChoicesTwo, sReadText);
-				break;
-			case 5:
-				strcpy((record+nCurrentIndex)->sChoicesThree, sReadText);
-				break;
-			case 6:
-				strcpy((record+nCurrentIndex)->sAnswer, sReadText);
-				break;
-			case 7:
-				nCurrentIndex++;
-		}
-		
-		i++;
-		
-		if (i > 7)
-		{
-			i = 0;
+			nCurrentIndex++;	
 		}
 	}
-	
+		
 	if (nCurrentIndex == nRecords)
 	{
-		printf("\n||| No records imported.\n");
+		printf("||| No records imported.\n");
 	}
 	else
 	{
@@ -1254,6 +1305,53 @@ int importRecord(struct record *record, int nRecords)
 	
 	fclose(fp);
 	return nRecords;
+}
+
+void exportRecord(struct record *record, int nRecords)
+{
+	string30 sFileName;
+	int i;
+	FILE *fp;
+	printf("\n-EXPORT RECORD-\n");
+	
+	if (nRecords == 0)
+	{
+		printf("||| There are no records.\n");
+		printf("||| Returning to Manage Data Menu...\n\n");
+		system("pause");
+	}
+	
+	else
+	{
+		do
+		{
+			fflush(stdin);
+			printf("||| Input filename: ");
+			fgets(sFileName, 30, stdin);
+			sFileName[strlen(sFileName)-1] = '\0';
+				
+			fp = fopen(sFileName, "w");
+			if (fp == NULL)
+			{
+				printf("||| File not found. Please try again.\n\n");
+			}
+		} while (fp == NULL);	
+		
+		for (i = 0; i < nRecords; i++)
+		{
+			fprintf(fp, "%s\n", (record+i)->sTopic);
+			fprintf(fp, "%d\n", (record+i)->nQuestionNum);
+			fprintf(fp, "%s\n", (record+i)->sQuestion);
+			fprintf(fp, "%s\n", (record+i)->sChoicesOne);
+			fprintf(fp, "%s\n", (record+i)->sChoicesTwo);
+			fprintf(fp, "%s\n", (record+i)->sChoicesThree);
+			fprintf(fp, "%s\n\n", (record+i)->sAnswer);
+		}
+		fclose(fp);
+		printf("||| Records have been exported to %s.\n\n", sFileName);
+		system("pause");
+	}
+
 }
 
 void displayRecord(struct record *record, int nRecords) 
