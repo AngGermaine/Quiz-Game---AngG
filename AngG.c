@@ -32,7 +32,10 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int stringToInt(char *str);
 int importRecord(struct record *record, int nRecords);
-void exportRecord(struct record *record, int nRecords);
+char* exportRecord(struct record *record, int nRecords);
+int saveRecord(struct record *record, int nRecords, string30 sFilename);
+
+
 
 int main() 
 {
@@ -47,6 +50,8 @@ int main()
 	int nUniqueTopicNum;
 	int bEditRecordOption;
 	int i;
+	string30 sFileName;
+	strcpy(sFileName, "");
 
 	do 
 	{
@@ -175,20 +180,29 @@ int main()
 	                            system("pause");
 	                            break;
 	                        case 5:
-	                            exportRecord(aRecords, nRecord);
+	                            strcpy(sFileName, exportRecord(aRecords, nRecord));
 	                            break;
 	                        case 6:
-	                        	for (i = 0; i < nRecord; i++)
+	                        	if (strcmp(sFileName, "") == 0)
 	                        	{
-	                        		strcpy((aRecords+i)->sTopic, "");
-									(aRecords+i)->nQuestionNum = 0;
-									strcpy((aRecords+i)->sQuestion, "");
-									strcpy((aRecords+i)->sChoicesOne, "");
-									strcpy((aRecords+i)->sChoicesTwo, "");
-									strcpy((aRecords+i)->sChoicesThree, "");
-									strcpy((aRecords+i)->sAnswer, "");	
+	                        		for (i = 0; i < nRecord; i++)
+			                        	{
+			                        		strcpy((aRecords+i)->sTopic, "");
+											(aRecords+i)->nQuestionNum = 0;
+											strcpy((aRecords+i)->sQuestion, "");
+											strcpy((aRecords+i)->sChoicesOne, "");
+											strcpy((aRecords+i)->sChoicesTwo, "");
+											strcpy((aRecords+i)->sChoicesThree, "");
+											strcpy((aRecords+i)->sAnswer, "");	
+										}
+										nRecord = 0;	
 								}
-								nRecord = 0;
+								
+								else
+								{
+									nRecord = saveRecord(aRecords, nRecord, sFileName);
+								}
+	                        	
 								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
 	                            printf("\n||| Going back to Main Menu...\n\n");
 	                            system("pause");
@@ -206,6 +220,8 @@ int main()
                 do 
 				{
 					system("cls");
+					displayRecord(aRecords, nRecord);
+                	printf("Number of Records: %d\n", nRecord);
                     printf("\nQUIZ GAME\n");
                     printf("[1] Play\n");
                     printf("[2] View Scores\n");
@@ -1299,7 +1315,7 @@ int importRecord(struct record *record, int nRecords)
 	}
 	else
 	{
-		printf("||| Records have been imported.\n");
+		printf("||| %d records have been imported.\n", nCurrentIndex - nRecords);
 		nRecords = nCurrentIndex;
 	}
 	
@@ -1307,9 +1323,10 @@ int importRecord(struct record *record, int nRecords)
 	return nRecords;
 }
 
-void exportRecord(struct record *record, int nRecords)
+char *exportRecord(struct record *record, int nRecords)
 {
-	string30 sFileName;
+	char *sFileName = (char *)malloc(30 * sizeof(char)); 
+	char *sSavedFileName = (char *)malloc(30 * sizeof(char));
 	int i;
 	FILE *fp;
 	printf("\n-EXPORT RECORD-\n");
@@ -1318,6 +1335,7 @@ void exportRecord(struct record *record, int nRecords)
 	{
 		printf("||| There are no records.\n");
 		printf("||| Returning to Manage Data Menu...\n\n");
+		strcpy(sSavedFileName, "");
 		system("pause");
 	}
 	
@@ -1329,11 +1347,12 @@ void exportRecord(struct record *record, int nRecords)
 			printf("||| Input filename: ");
 			fgets(sFileName, 30, stdin);
 			sFileName[strlen(sFileName)-1] = '\0';
-				
+			strcpy(sSavedFileName, sFileName);
 			fp = fopen(sFileName, "w");
 			if (fp == NULL)
 			{
 				printf("||| File not found. Please try again.\n\n");
+				strcpy(sSavedFileName, "");
 			}
 		} while (fp == NULL);	
 		
@@ -1350,9 +1369,119 @@ void exportRecord(struct record *record, int nRecords)
 		fclose(fp);
 		printf("||| Records have been exported to %s.\n\n", sFileName);
 		system("pause");
+		
 	}
-
+	free(sFileName);
+	return sSavedFileName;
 }
+
+int saveRecord(struct record *record, int nRecords, char *sSavedFileName)
+{
+	int i, j, nCurrentIndex = nRecords;
+	int bFoundDuplicate = 0;
+	char sReadText[150];
+	FILE *fp;
+	
+	fp = fopen(sSavedFileName, "r");
+	
+	while (fgets(sReadText, sizeof(sReadText), fp) != NULL && nCurrentIndex < MAX_RECORDS) 
+	{
+	    int nLength = strlen(sReadText);
+			
+	    if (nLength > 0 && sReadText[nLength-1] == '\n') 
+		{
+	        sReadText[nLength-1] = '\0';
+	    }
+			
+	    switch(i) 
+		{
+	        case 0:
+	            strcpy((record+nCurrentIndex)->sTopic, sReadText);
+	            break;
+	        case 1:
+	            (record+nCurrentIndex)->nQuestionNum = stringToInt(sReadText);
+	            break;
+	        case 2:
+	            strcpy((record+nCurrentIndex)->sQuestion, sReadText);
+	            break;
+	        case 3:
+	            strcpy((record+nCurrentIndex)->sChoicesOne, sReadText);
+	            break;
+	        case 4:
+	            strcpy((record+nCurrentIndex)->sChoicesTwo, sReadText);
+	            break;
+	        case 5:
+	            strcpy((record+nCurrentIndex)->sChoicesThree, sReadText);
+	            break;
+	        case 6:
+	            strcpy((record+nCurrentIndex)->sAnswer, sReadText);
+	            break;
+	        case 7:
+	        	bFoundDuplicate = 0;
+	        	for (j = 0; (j < nCurrentIndex && !bFoundDuplicate); j++)
+	        	{
+	        		if (strcmp((record+nCurrentIndex)->sQuestion,(record+j)->sQuestion) == 0 &&
+					    strcmp((record+nCurrentIndex)->sAnswer,(record+j)->sAnswer) == 0)
+					{
+						bFoundDuplicate = 1;
+					}
+				}
+				if (!bFoundDuplicate)
+				{
+					nCurrentIndex++;	
+				}
+	        	break;
+	    }
+			
+	    i++;
+			
+	    if (i == 8) 
+		{
+	        i = 0;
+	    }
+	}
+	/*
+	//Conditions these cover, if it is at the end of the file so ignores newline, if there is only one record. 
+	The previous block of code at case 7 does have the same purpose, but it does not cover if there is only one record.
+	*/
+	if (i == 7 && nCurrentIndex < MAX_RECORDS && feof(fp)) 
+	{
+	    bFoundDuplicate = 0;
+	    for (j = 0; (j < nCurrentIndex && !bFoundDuplicate); j++)
+	    {
+	        if (strcmp((record+nCurrentIndex)->sQuestion,(record+j)->sQuestion) == 0 &&
+				strcmp((record+nCurrentIndex)->sAnswer,(record+j)->sAnswer) == 0)
+			{
+				bFoundDuplicate = 1;
+			}
+		}
+		if (!bFoundDuplicate)
+		{
+			nCurrentIndex++;	
+		}
+	}
+	
+	nRecords = nCurrentIndex;
+	printf("\n||| Records saved successfully.\n");
+	
+	return nRecords;	
+}
+
+void playGame(struct record *record, int nRecords, int nUniqueTopicNum)
+{
+	
+}
+
+
+
+
+
+
+
+
+
+
+
 
 void displayRecord(struct record *record, int nRecords) 
 {	
