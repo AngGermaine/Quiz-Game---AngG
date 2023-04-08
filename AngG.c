@@ -3,7 +3,7 @@
 #include <string.h>
 #include <conio.h>
 #define MAX_SIZE 200
-#define MAX_RECORDS 25
+#define MAX_RECORDS 30
 #define MAX_QUESTION_LENGTH 150
 #define MAX_ANSWER_LENGTH 30
 #define MAX_TOPIC_LENGTH 20
@@ -22,6 +22,11 @@ struct record {
     int nQuestionNum;
 }; 
 
+struct players {
+	char sName[MAX_SIZE];
+	int nGameScore;
+};
+
 int inputPassword();
 void getInput(struct record *record, int nRecords);
 void displayRecord(struct record *record, int nRecords);
@@ -35,23 +40,14 @@ int importRecord(struct record *record, int nRecords);
 char* exportRecord(struct record *record, int nRecords);
 int saveRecord(struct record *record, int nRecords, string30 sFilename);
 
-
-
 int main() 
 {
-	int nMMChoice;
-	int nMDMChoice;
-	int nGMChoice;
-	int nPassCheck;
-	
-	struct record aRecords[MAX_RECORDS];
-	int nRecord = 0;
-	int bEndEdit = 0;
-	int nUniqueTopicNum;
-	int bEditRecordOption;
 	int i;
+	int nMMChoice, nMDMChoice, nGMChoice, nPassCheck, nUniqueTopicNum, nRecord = 0;
+	int bEditRecordOption, bEndEdit = 0, bSaveRecord = 1;
+	struct record aRecords[MAX_RECORDS];
+	struct players aPlayers[MAX_RECORDS];
 	string30 sFileName;
-	strcpy(sFileName, "");
 
 	do 
 	{
@@ -201,6 +197,7 @@ int main()
 								else
 								{
 									nRecord = saveRecord(aRecords, nRecord, sFileName);
+									bSaveRecord = 1;
 								}
 	                        	
 								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
@@ -240,6 +237,17 @@ int main()
                             break;
                         case 3:
                             printf("\n||| Going back to Main Menu...\n");
+                            for (i = 0; i < nRecord; i++)
+			                {
+			                    strcpy((aRecords+i)->sTopic, "");
+								(aRecords+i)->nQuestionNum = 0;
+								strcpy((aRecords+i)->sQuestion, "");
+								strcpy((aRecords+i)->sChoicesOne, "");
+								strcpy((aRecords+i)->sChoicesTwo, "");
+								strcpy((aRecords+i)->sChoicesThree, "");
+								strcpy((aRecords+i)->sAnswer, "");	
+							}
+							nRecord = 0;
                             break;
                         default:
                             printf("||| Invalid choice. Please try again.\n");
@@ -320,10 +328,8 @@ int inputPassword()
 void getInput(struct record *record, int nRecords)
 {
 	int i, j;
-	int nCurrent = nRecords - 1; 
-	int bFound = 0;
-	int bFoundUniqueTopic = 0;
-	int nTopicNum = 1;
+	int nTopicNum = 1, nCurrent = nRecords - 1; 
+	int bFound = 0, bFoundUniqueTopic = 0;
 	
 	if (((record+nCurrent)->sQuestion) != '\0')
 	{
@@ -1469,6 +1475,7 @@ int saveRecord(struct record *record, int nRecords, char *sSavedFileName)
 
 void playGame(struct record *record, int nRecords, int nUniqueTopicNum)
 {
+	int i, j;
 	
 }
 
