@@ -44,13 +44,14 @@ int main()
 {
 	int i;
 	int nMMChoice, nMDMChoice, nGMChoice, nPassCheck, nUniqueTopicNum, nRecord = 0;
-	int bEditRecordOption, bEndEdit = 0, bSaveRecord = 1;
+	int bEditRecordOption, bEndEdit = 0, bSavedRecord = 0;
 	struct record aRecords[MAX_RECORDS];
 	struct players aPlayers[MAX_RECORDS];
 	string30 sFileName;
 
 	do 
 	{
+		bSavedRecord = 0; //so that if in the next manage data loop, if they do not select Export, it will not save the record arrray.
 		system("cls");
     	printf("\n-MAIN MENU-\n");
     	printf("[1] Manage Data\n");
@@ -177,11 +178,17 @@ int main()
 	                            break;
 	                        case 5:
 	                            strcpy(sFileName, exportRecord(aRecords, nRecord));
+	                            bSavedRecord = 1;
 	                            break;
 	                        case 6:
-	                        	if (strcmp(sFileName, "") == 0)
+	                        	if (bSavedRecord)
 	                        	{
-	                        		for (i = 0; i < nRecord; i++)
+	                        		nRecord = saveRecord(aRecords, nRecord, sFileName);
+								}
+								
+								else
+								{
+									for (i = 0; i < nRecord; i++)
 			                        	{
 			                        		strcpy((aRecords+i)->sTopic, "");
 											(aRecords+i)->nQuestionNum = 0;
@@ -191,13 +198,7 @@ int main()
 											strcpy((aRecords+i)->sChoicesThree, "");
 											strcpy((aRecords+i)->sAnswer, "");	
 										}
-										nRecord = 0;	
-								}
-								
-								else
-								{
-									nRecord = saveRecord(aRecords, nRecord, sFileName);
-									bSaveRecord = 1;
+									nRecord = 0;
 								}
 	                        	
 								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
