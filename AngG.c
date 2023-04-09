@@ -1,3 +1,10 @@
+/*********************************************************************************************************
+This is to certify that this project is my own work, based on my personal efforts in studying and applying the concepts
+learned. I have constructed the functions and their respective algorithms and corresponding code by myself. The
+program was run, tested, and debugged by my own efforts. I further certify that I have not copied in part or whole or
+otherwise plagiarized the work of other students and/or persons.
+Germaine Richie Chua Ang, DLSU ID# 12275328
+*********************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,14 +31,12 @@ struct record {
 }; 
 
 struct players {
-	char sName[MAX_SIZE];
-	int nPlayerCount;
+	string30 sName;
 	int nGameScore;
 };
 
 int inputPassword();
 void getInput(struct record *record, int nRecords);
-void displayRecord(struct record *record, int nRecords);
 int addRecord(struct record *record, int nRecords);
 int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum);
 void updateQuestionNumber(struct record *record, int nRecords);
@@ -41,8 +46,12 @@ int stringToInt(char *str);
 int importRecord(struct record *record, int nRecords);
 char *exportRecord(struct record *record, int nRecords);
 int saveRecord(struct record *record, int nRecords, string30 sFilename);
-int playGame(struct record *record, struct players *player, int nRecords, int nPlayers, int nUniqueTopicNum);
 int countPlayers(struct players *player, int nPlayers);
+int playGame(struct record *record, struct players *player, int nRecords, int nPlayers, int nUniqueTopicNum);
+void viewScores(struct players *player, int nPlayers);
+int importScores(struct players *player, int nPlayers);
+void exportScores(struct players *player, int nPlayers);
+
 
 int main() 
 {
@@ -52,7 +61,8 @@ int main()
 	struct record aRecords[MAX_RECORDS];
 	struct players aPlayers[MAX_SIZE];
 	string30 sFileName;
-
+	srand(time(NULL));
+	
 	do 
 	{
 		bSavedRecord = 0; //so that if in the next manage data loop, if they do not select Export, it will not save the record arrray.
@@ -81,7 +91,6 @@ int main()
             		do 
 					{
 						system("cls");
-						displayRecord(aRecords, nRecord);
 	                    printf("\n-MANAGE DATA-\n");
 	                    printf("Number of Records: %d\n", nRecord);
 	                    printf("[1] Add record\n");
@@ -222,12 +231,6 @@ int main()
                 do 
 				{
 					system("cls");
-					for (i = 0; i < nPlayerCount; i++)
-                    {
-                        printf("%s = %d\n", (aPlayers+i)->sName, (aPlayers+i)->nGameScore);
-					}
-					printf("PlayerCount = %d\n", nPlayerCount);
-                	printf("Number of Records: %d\n", nRecord);
                     printf("\n-QUIZ GAME-\n");
                     printf("[1] Play\n");
                     printf("[2] View Scores\n");
@@ -246,7 +249,7 @@ int main()
 	                        	fflush(stdin);
 	                        	nPlayerCount = countPlayers(aPlayers, nPlayerCount);
 								printf("||| Enter your name: ");
-								fgets((aPlayers+nPlayerCount)->sName, MAX_SIZE, stdin);
+								fgets((aPlayers+nPlayerCount)->sName, 30, stdin);
 								(aPlayers+nPlayerCount)->sName[strlen((aPlayers+nPlayerCount)->sName)-1] = '\0';
 	                        	do
 	                        	{
@@ -287,28 +290,33 @@ int main()
                         	else
                         	{
                         		printf("||| There are no records.\n");
-                        		printf("\n||| Going back to Main Menu...\n\n");
+                        		printf("\n||| Going back to Quiz Game Menu...\n\n");
                             	system("pause");
 							}
                         	
                             break;
                         case 2:
-                            
+                            system("cls");
+                        	printf("\n-QUIZ GAME-\n");
+                        	nPlayerCount = importScores(aPlayers, nPlayerCount);
+                        	viewScores(aPlayers, nPlayerCount);
+                        	system("pause");
                             break;
                         case 3:
-                			
-                            /*
-                            for (i = 0; i < nRecord; i++)
-			                {
-			                    strcpy((aRecords+i)->sTopic, "");
-								(aRecords+i)->nQuestionNum = 0;
-								strcpy((aRecords+i)->sQuestion, "");
-								strcpy((aRecords+i)->sChoicesOne, "");
-								strcpy((aRecords+i)->sChoicesTwo, "");
-								strcpy((aRecords+i)->sChoicesThree, "");
-								strcpy((aRecords+i)->sAnswer, "");	
+                        	if (nPlayerCount > 0)
+                        	{
+	                        	exportScores(aPlayers, nPlayerCount);
+	                            for (i = 0; i < nPlayerCount; i++)
+				                {
+				                    strcpy((aPlayers+i)->sName, "");
+									(aPlayers+i)->nGameScore = 0;
+								}
+								nPlayerCount = 0;	
 							}
-							nRecord = 0; */
+                			else
+                			{
+                				printf("||| There are no players.\n");
+							}
 							printf("\n||| Going back to Main Menu...\n\n");
                             system("pause");
                             break;
@@ -329,7 +337,8 @@ int main()
     return 0;
 }
 
-int inputPassword()
+int 
+inputPassword()
 {
 	string30 sPassword;
 	strcpy(sPassword, "password");
@@ -388,7 +397,9 @@ int inputPassword()
 	return bIsPass;
 }
 
-void getInput(struct record *record, int nRecords)
+void 
+getInput(struct record *record, 
+	     int nRecords)
 {
 	int i, j;
 	int nTopicNum = 1, nCurrent = nRecords - 1; 
@@ -545,7 +556,9 @@ void getInput(struct record *record, int nRecords)
 	
 } 
 
-int addRecord(struct record *record, int nRecords)
+int 
+addRecord(struct record *record, 
+		  int nRecords)
 {
 	int i;
 	int bFound = 0;
@@ -575,7 +588,10 @@ int addRecord(struct record *record, int nRecords)
     return nRecords + 1;
 }
 
-int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum)
+int 
+getUniqueTopic(struct record *record, 
+               int nRecords, 
+			   int nUniqueTopicNum)
 {
     int h, k;
     int bFound;
@@ -607,7 +623,9 @@ int getUniqueTopic(struct record *record, int nRecords, int nUniqueTopicNum)
     return nUniqueTopicNum;
 }
 
-void updateQuestionNumber(struct record *record, int nRecords)
+void 
+updateQuestionNumber(struct record *record, 
+                     int nRecords)
 {
     int i, j, nTopicNum;
     
@@ -634,7 +652,10 @@ void updateQuestionNumber(struct record *record, int nRecords)
     }
 }
 
-void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
+void 
+editRecord(struct record *record, 
+           int nRecords, 
+		   int nUniqueTopicNum)
 {
     int h, i, j, k, nEditSelect, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nQuestionIndex[MAX_RECORDS];
     int bFound = 0, bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bSameInput = 0, bDuplicate = 0, bEditChoice = 0;
@@ -1095,7 +1116,10 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 	}
 }
 
-int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
+int 
+deleteRecord(struct record *record, 
+             int nRecords, 
+			 int nUniqueTopicNum)
 {
 	int h, i, j, k, nRecordSelect = 0, nFoundQuestion = 0, nRecordIndex = 0, nQuestionIndex[MAX_RECORDS];
     int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bDeleteRecord = 0;
@@ -1260,7 +1284,8 @@ int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum)
 	return nRecords;
 }
 
-int stringToInt(char *str)
+int 
+stringToInt(char *str)
 {
     int nResult = 0;
     int i = 0;
@@ -1276,7 +1301,9 @@ int stringToInt(char *str)
     return nResult;
 }
 
-int importRecord(struct record *record, int nRecords)
+int 
+importRecord(struct record *record, 
+             int nRecords)
 {
 	string30 sFileName;
 	int i, j, nCurrentIndex = nRecords;
@@ -1392,7 +1419,9 @@ int importRecord(struct record *record, int nRecords)
 	return nRecords;
 }
 
-char *exportRecord(struct record *record, int nRecords)
+char*
+exportRecord(struct record *record, 
+             int nRecords)
 {
 	char *sFileName = (char *)malloc(30 * sizeof(char)); 
 	char *sSavedFileName = (char *)malloc(30 * sizeof(char));
@@ -1444,7 +1473,10 @@ char *exportRecord(struct record *record, int nRecords)
 	return sSavedFileName;
 }
 
-int saveRecord(struct record *record, int nRecords, char *sSavedFileName)
+int 
+saveRecord(struct record *record, 
+           int nRecords, 
+		   char *sSavedFileName)
 {
 	int i, j, nCurrentIndex = nRecords;
 	int bFoundDuplicate = 0;
@@ -1536,7 +1568,9 @@ int saveRecord(struct record *record, int nRecords, char *sSavedFileName)
 	return nRecords;	
 }
 
-int countPlayers(struct players *player, int nPlayers)
+int 
+countPlayers(struct players *player, 
+             int nPlayers)
 {
 	int i;
 	
@@ -1551,10 +1585,14 @@ int countPlayers(struct players *player, int nPlayers)
 	return nPlayers;
 } 
 
-int playGame(struct record *record, struct players *player, int nRecords, int nPlayers, int nUniqueTopicNum)
+int 
+playGame(struct record *record, 
+         struct players *player, 
+		 int nRecords, int nPlayers, 
+		 int nUniqueTopicNum)
 {
 	int h, i, j, k, nRecordSelect = 0, nFoundQuestion = 0, nQuestionIndex[MAX_RECORDS];
-	int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1, bNameAsked = 0;
+	int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1;
 	char ch, sChoose[MAX_ANSWER_LENGTH];
 	
 	system("cls");
@@ -1615,8 +1653,6 @@ int playGame(struct record *record, struct players *player, int nRecords, int nP
 				nQuestionIndex[nFoundQuestion++] = 0; 
 			}
 		}
-		
-		srand(time(NULL));
 
 		do
 		{
@@ -1675,8 +1711,7 @@ int playGame(struct record *record, struct players *player, int nRecords, int nP
 				strcpy((record+nRecords-1)->sChoicesThree, "");
 				strcpy((record+nRecords-1)->sAnswer, "");	
 			
-				updateQuestionNumber(record, nRecords);
-					
+				updateQuestionNumber(record, nRecords);	
 				nRecords--;
 				bQuestionTrue = 0;
 				bEnd = 1;
@@ -1693,32 +1728,139 @@ int playGame(struct record *record, struct players *player, int nRecords, int nP
 	return nRecords;
 }
 
+void 
+viewScores(struct players *player, 
+           int nPlayers)
+{
+    int i, j, k;
+    int nTempGameScore;
+    int bEnd = 0;
+    string30 sTempName;
 
+    printf("~|| Leaderboard: \n");
 
+    if (nPlayers == 0)
+    {
+        printf("||| There are no players yet.\n\n");
+        bEnd = 1;
+    }
 
+    while (!bEnd)
+    {
+        // Remove duplicate scores and names
+        for (i = 0; i < nPlayers; i++)
+        {
+            for (j = i + 1; j < nPlayers;)
+            {
+                if (strcmp((player+i)->sName, (player+j)->sName) == 0 && 
+				    (player+i)->nGameScore == (player+j)->nGameScore)
+                {
+                    for (k = j; k < nPlayers - 1; k++)
+                    {
+                        strcpy((player+k)->sName, (player+k+1)->sName);
+                        (player+k)->nGameScore = (player+k+1)->nGameScore;
+                    }
+                    nPlayers--;
+                }
+                else
+                {
+                    j++;
+                }
+            }
+        }
 
+        // Bubble sort name and score
+        for (i = 0; i < nPlayers ; i++)
+        {
+            for (j = 0; j < nPlayers - i - 1; j++)
+            {
+                if ((player+j)->nGameScore < (player+(j+1))->nGameScore)
+                {
+                    nTempGameScore = (player+j)->nGameScore;
+                    (player+j)->nGameScore = (player+(j+1))->nGameScore;
+                    (player+(j+1))->nGameScore = nTempGameScore;
 
+                    strcpy(sTempName, (player+j)->sName);
+                    strcpy((player+j)->sName, (player+(j+1))->sName);
+                    strcpy((player+(j+1))->sName ,sTempName);
+                }
+            }
+        }
 
+        for (i = 0; i < nPlayers; i++)
+        {
+            printf("%d. %s - SCORE: %d\n", i+1, (player+i)->sName, (player+i)->nGameScore);
+        }
 
-
-
-
-
-void displayRecord(struct record *record, int nRecords) 
-{	
-	int i;
-
-	for (i = 0; i < nRecords; i++)
-	{
-	    printf("\nTopic: %s\n", (record+i)->sTopic);
-	    printf("Question Number: %d\n", (record+i)->nQuestionNum);
-	    printf("Question: %s\n", (record+i)->sQuestion);
-	   
-	    printf("Choices:\n");
-	    printf("1. %s\n", (record+i)->sChoicesOne);
-	    printf("2. %s\n", (record+i)->sChoicesTwo);
-	    printf("3. %s\n", (record+i)->sChoicesThree);
-	    
-	    printf("Answer: %s\n", (record+i)->sAnswer);
-	}
+        printf("\n");
+        bEnd = 1;
+    }
 }
+
+int 
+importScores(struct players *player, 
+             int nPlayers)
+{
+	string30 sReadName;
+    int i, nReadScore, nCurrentIndex = nPlayers;
+    int bExists;
+    FILE *fp;
+    fp = fopen("score.txt", "r");
+    
+    while ( fscanf(fp, "%s%d", sReadName, &nReadScore) == 2)
+    {
+        bExists = 0;
+        
+        for (i = 0; i < nCurrentIndex && !bExists; i++)
+        {
+            if ((strcmp((player+i)->sName, sReadName) == 0) && 
+			    ((player+i)->nGameScore == nReadScore))
+            {
+                bExists = 1;
+            }
+        }
+        
+        if (!bExists)
+        {
+            strcpy((player+nCurrentIndex)->sName, sReadName);
+            (player+nCurrentIndex)->nGameScore = nReadScore;
+            nCurrentIndex++;
+        }
+    }
+    
+    nPlayers = nCurrentIndex;
+    fclose(fp);
+    return nPlayers;
+}
+
+void 
+exportScores(struct players *player, 
+             int nPlayers)
+{
+	int i, j;
+	int bExported;
+	FILE *fp;
+	fp = fopen("score.txt", "w");
+		
+	for (i = 0; i < nPlayers && !bExported; i++)
+	{
+		// Check if this name and score have already been exported
+		bExported = 0;
+		for (j = 0; j < i; j++) 
+		{
+			if (strcmp((player+i)->sName, (player+j)->sName) == 0 &&
+			    (player+i)->nGameScore == (player+j)->nGameScore) 
+			{
+				bExported = 1;
+			}
+		}
+		
+		if (!bExported) 
+		{
+			fprintf(fp, "%s\n", (player+i)->sName);
+			fprintf(fp, "%d\n\n", (player+i)->nGameScore);
+		}
+	}
+	fclose(fp);
+}
+
