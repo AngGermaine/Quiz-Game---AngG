@@ -52,7 +52,6 @@ void viewScores(struct players *player, int nPlayers);
 int importScores(struct players *player, int nPlayers);
 void exportScores(struct players *player, int nPlayers);
 
-
 int main() 
 {
 	int i;
@@ -78,7 +77,7 @@ int main()
         switch (nMMChoice) 
 		{
             case 1:
-            	//Ask for password first
+            	//ask for password first
             	nPassCheck = inputPassword();
             	if (nPassCheck == 6)
             	{
@@ -337,11 +336,16 @@ int main()
     return 0;
 }
 
+/* inputPassword asks for password input and returns two values that help it lead the user to different menus.
+@return bIsPass = 1 if the password is correct so it leads them to manage data
+@return bIsPass = 6 if they want to go back to main menu
+*/
+
 int 
 inputPassword()
 {
 	string30 sPassword;
-	strcpy(sPassword, "password");
+	strcpy(sPassword, "password"); //setting of password
 	strcat(sPassword, "");
 	
 	char aInputPass[MAX_SIZE];
@@ -397,6 +401,12 @@ inputPassword()
 	return bIsPass;
 }
 
+/* getInput is a void function that acts as a way for user to input the fields of the record. Used in addRecord. 
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+Pre-condition: Input only contains letters in the alphabet
+*/
+
 void 
 getInput(struct record *record, 
 	     int nRecords)
@@ -405,7 +415,7 @@ getInput(struct record *record,
 	int nTopicNum = 1, nCurrent = nRecords - 1; 
 	int bFound = 0, bFoundUniqueTopic = 0;
 	
-	if (((record+nCurrent)->sQuestion) != '\0')
+	if (((record+nCurrent)->sQuestion) != '\0') //check if there is a record, so now we check if question and answer is same
 	{
 		fflush(stdin);
 		
@@ -486,7 +496,7 @@ getInput(struct record *record,
 	
 	else
 	{
-		for (i = 0; i < nRecords; i++)
+		for (i = 0; i < nRecords; i++) // for the first record, so no need to check same question and answer
 		{
 			fflush(stdin);
 			
@@ -556,6 +566,12 @@ getInput(struct record *record,
 	
 } 
 
+/* addRecord returns the number of records present in the aRecord array.
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@return nRecords, it will keep incrementing nRecords as long as there is space and the record is currently nonexisting. 
+*/
+
 int 
 addRecord(struct record *record, 
 		  int nRecords)
@@ -563,7 +579,7 @@ addRecord(struct record *record,
 	int i;
 	int bFound = 0;
 	
-    if (nRecords >= (MAX_RECORDS-1)) 
+    if (nRecords >= MAX_RECORDS) 
 	{
         printf("\n||| The records database is full. Please delete some records to continue.\n");
         return nRecords;
@@ -587,6 +603,15 @@ addRecord(struct record *record,
 	
     return nRecords + 1;
 }
+
+/* getUniqueTopic returns the number of Unique Topics found and copies those Unique Topics into a member of struct record for Unique Topics.
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@param int nUniqueTopicNum - set as 0 but updates as long as this function is called
+@return nUniqueTopicNum, acts as the number for the amount of Unique Topics present
+Pre-condition: The members of the Unique Topics must be reset to null/zero in order for getUniqueTopic to read the current array. 
+The reset acts as a buffer for functions that want to get the accurate and updated list of Unique Topics. 
+*/
 
 int 
 getUniqueTopic(struct record *record, 
@@ -623,6 +648,11 @@ getUniqueTopic(struct record *record,
     return nUniqueTopicNum;
 }
 
+/* updateQuestionNumber, when called, updates the aRecords array's question numbers for each topic.
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+*/
+
 void 
 updateQuestionNumber(struct record *record, 
                      int nRecords)
@@ -651,6 +681,14 @@ updateQuestionNumber(struct record *record,
         }
     }
 }
+
+/* editRecord edits a field in the record
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@param int nUniqueTopicNum - acts as the number for the amount of Unique Topics present, 
+							so that it indexes the through the current stored Unique Topics
+Pre-condition: Must have at least one record in aRecords array to edit. 
+*/
 
 void 
 editRecord(struct record *record, 
@@ -1116,6 +1154,15 @@ editRecord(struct record *record,
 	}
 }
 
+/* deleteRecord deletes a record in the aRecords array
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@param int nUniqueTopicNum - acts as the number for the amount of Unique Topics present, 
+							so that it indexes the through the current stored Unique Topics
+@return nRecords, decrements nRecords to accurately reflect the amount of current records after deletion.
+Pre-condition: Must have at least one record in aRecord array to delete. 
+*/
+
 int 
 deleteRecord(struct record *record, 
              int nRecords, 
@@ -1284,6 +1331,12 @@ deleteRecord(struct record *record,
 	return nRecords;
 }
 
+/* stringToInt returns an int after converting it from a string.
+@param char *str- string containing number characters
+@return integer nResult after subtracting it from a character in a string
+Pre-condition: *str must be positive. 
+*/
+
 int 
 stringToInt(char *str)
 {
@@ -1300,6 +1353,13 @@ stringToInt(char *str)
 
     return nResult;
 }
+
+/* importRecord returns the number of added records from the import so long as they arent existing in the aRecords array.
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@return nRecords, it will keep incrementing nRecords as long as there is space and the record is currently nonexisting. 
+				 it will keep adding records so long as it has not reached over the max amount of records. 
+*/
 
 int 
 importRecord(struct record *record, 
@@ -1419,11 +1479,18 @@ importRecord(struct record *record,
 	return nRecords;
 }
 
+/* exportRecord returns the name of the record chosen to export so that it can be used in saveRecord. 
+				It also exports the record to the chosen filename. 
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@return char* sSavedFileName, this is the inputted filename.
+*/
+
 char*
 exportRecord(struct record *record, 
              int nRecords)
 {
-	char *sFileName = (char *)malloc(30 * sizeof(char)); 
+	char *sFileName = (char *)malloc(30 * sizeof(char)); //allocate space to store both strings 
 	char *sSavedFileName = (char *)malloc(30 * sizeof(char));
 	int i;
 	FILE *fp;
@@ -1469,9 +1536,17 @@ exportRecord(struct record *record,
 		system("pause");
 		
 	}
-	free(sFileName);
+	free(sFileName); //returns memory that was allocated 
 	return sSavedFileName;
 }
+
+/* saveRecord imports the contents of char *sSavedFileName to the aRecords array
+@param struct record *record - pointer to struct aRecords in main
+@param int nRecords - amount of records currently present
+@param char* sSavedFileName, receives the saved filename from exportRecord.
+@return nRecords, so it stores all the records.
+Pre-condition: Must have exported a record at any point of the manage data menu to call this function. 
+*/
 
 int 
 saveRecord(struct record *record, 
@@ -1568,6 +1643,13 @@ saveRecord(struct record *record,
 	return nRecords;	
 }
 
+/* countPlayers returns the number of players in the game
+@param struct players *player - pointer to struct aPlayers in main
+@param int nPlayers - amount of players currently present
+@return nPlayers, to update the amount of players currently present
+Pre-condition: As long as there are players in the aPlayers array
+*/
+
 int 
 countPlayers(struct players *player, 
              int nPlayers)
@@ -1584,6 +1666,18 @@ countPlayers(struct players *player,
 	
 	return nPlayers;
 } 
+
+/* playGame is the quiz game, asks for unique topics then displays a question within those topics. 
+			Gives a score if question is right. 
+@param struct record *record - pointer to struct aRecords in main
+@param struct players *player - pointer to struct aPlayers in main
+@param int nRecords - amount of records currently present
+@param int nPlayers - amount of players currently present
+@param int nUniqueTopicNum - acts as the number for the amount of Unique Topics present, 
+							so that it indexes the through the current stored Unique Topics
+@return nRecords, decrements if a record is removed from the pool of questions to answer. 
+Pre-condition: player name must be input in main before starting so as to initialize nPlayers
+*/
 
 int 
 playGame(struct record *record, 
@@ -1728,6 +1822,12 @@ playGame(struct record *record,
 	return nRecords;
 }
 
+/* viewScores shows a leaderboard ranked from highest to lowest scores,
+			  if the player scores the same score as their existing one, their duplicate score wont be shown. 
+@param struct players *player - pointer to struct aPlayers in main
+@param int nPlayers - amount of players currently present
+*/
+
 void 
 viewScores(struct players *player, 
            int nPlayers)
@@ -1797,6 +1897,13 @@ viewScores(struct players *player,
     }
 }
 
+/* importScores imports the names and scores of previous runs.
+@param struct players *player - pointer to struct aPlayers in main
+@param int nPlayers - amount of players currently present
+@return nPlayers so that view scores looks at all the imported players stored in the aPlayers array. 
+Pre-condition: score.txt must exist 
+*/
+
 int 
 importScores(struct players *player, 
              int nPlayers)
@@ -1832,6 +1939,12 @@ importScores(struct players *player,
     fclose(fp);
     return nPlayers;
 }
+
+/* exportScores exports the names and scores of the current run. Does not write duplicates.
+@param struct players *player - pointer to struct aPlayers in main
+@param int nPlayers - amount of players currently present
+Pre-condition: score.txt must exist 
+*/
 
 void 
 exportScores(struct players *player, 
