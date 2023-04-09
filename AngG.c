@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
+#include <time.h>
 #define MAX_SIZE 200
 #define MAX_RECORDS 30
 #define MAX_QUESTION_LENGTH 150
@@ -24,6 +25,7 @@ struct record {
 
 struct players {
 	char sName[MAX_SIZE];
+	int nPlayerCount;
 	int nGameScore;
 };
 
@@ -37,8 +39,9 @@ void editRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int deleteRecord(struct record *record, int nRecords, int nUniqueTopicNum);
 int stringToInt(char *str);
 int importRecord(struct record *record, int nRecords);
-char* exportRecord(struct record *record, int nRecords);
+char *exportRecord(struct record *record, int nRecords);
 int saveRecord(struct record *record, int nRecords, string30 sFilename);
+int playGame(struct record *record, struct players *player, int nRecords, int nUniqueTopicNum);
 
 int main() 
 {
@@ -46,7 +49,7 @@ int main()
 	int nMMChoice, nMDMChoice, nGMChoice, nPassCheck, nUniqueTopicNum, nRecord = 0;
 	int bEditRecordOption, bEndEdit = 0, bSavedRecord = 0;
 	struct record aRecords[MAX_RECORDS];
-	struct players aPlayers[MAX_RECORDS];
+	struct players aPlayers[MAX_SIZE];
 	string30 sFileName;
 
 	do 
@@ -188,6 +191,7 @@ int main()
 								
 								else
 								{
+									printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
 									for (i = 0; i < nRecord; i++)
 			                        	{
 			                        		strcpy((aRecords+i)->sTopic, "");
@@ -201,7 +205,6 @@ int main()
 									nRecord = 0;
 								}
 	                        	
-								printf("\n||| Deleting unsaved records. (Tip: Save with export.)");
 	                            printf("\n||| Going back to Main Menu...\n\n");
 	                            system("pause");
 	                            break;
@@ -231,13 +234,49 @@ int main()
                     switch (nGMChoice) 
 					{
                         case 1:
-                            
+                        	do
+                        	{
+	                        	system("cls");
+	                            nUniqueTopicNum = 0;
+		                        for (i = 0; i < nRecord; i++)
+		                        {
+		                        	strcpy((aRecords+i)->sUniqueTopics,"");
+								}
+			                    nUniqueTopicNum = getUniqueTopic(aRecords, nRecord, nUniqueTopicNum);
+			                    nRecord = playGame(aRecords, aPlayers, nRecord, nUniqueTopicNum);	
+			                    
+			                    do
+			                    {
+			            			printf("\n||| Would you still like to [1] Play game or [2] Return to Game Menu? ");
+									scanf(" %d", &bEditRecordOption);
+									if (bEditRecordOption == 1)
+									{
+										system("cls");
+										nUniqueTopicNum = 0;
+										for (i = 0; i < nRecord; i++)
+			                        	{
+			                        		strcpy((aRecords+i)->sUniqueTopics,"");
+										}
+										bEndEdit = 0;
+									}
+										
+									else
+									{
+										printf("\n||| Player SCORE is: \n");
+										system("pause");
+										bEndEdit = 1;
+									}    	
+								} while (bEditRecordOption < 1 || bEditRecordOption > 2);
+                        		
+							} while (bEndEdit == 0);
+                        	
                             break;
                         case 2:
                             
                             break;
                         case 3:
-                            printf("\n||| Going back to Main Menu...\n");
+                			
+                            /*
                             for (i = 0; i < nRecord; i++)
 			                {
 			                    strcpy((aRecords+i)->sTopic, "");
@@ -248,7 +287,9 @@ int main()
 								strcpy((aRecords+i)->sChoicesThree, "");
 								strcpy((aRecords+i)->sAnswer, "");	
 							}
-							nRecord = 0;
+							nRecord = 0; */
+							printf("\n||| Going back to Main Menu...\n");
+                            system("pause");
                             break;
                         default:
                             printf("||| Invalid choice. Please try again.\n");
@@ -1474,10 +1515,150 @@ int saveRecord(struct record *record, int nRecords, char *sSavedFileName)
 	return nRecords;	
 }
 
-void playGame(struct record *record, int nRecords, int nUniqueTopicNum)
+int playGame(struct record *record, struct players *player, int nRecords, int nUniqueTopicNum)
 {
-	int i, j;
+	int g, h, i, j, k, nRecordSelect = 0, nFoundQuestion = 0, nQuestionIndex[MAX_RECORDS];
+	int nCurrent;
+	int bEnd = 0, bTopicTrue = 1, bQuestionTrue = 1, bSkipQuestion = 1;
+	char ch, sChoose[MAX_ANSWER_LENGTH];
 	
+	printf("\n-QUIZ GAME-\n");
+	
+	if (nRecords == 0)
+    {
+    	printf("||| There are no records.\n");
+    	bEnd = 1;
+	}
+	
+	while (bEnd == 0)
+	{
+		printf("~|| Enter your name: ");
+		
+		printf("~|| Here are the unique topics.\n");
+		for (h = 0; h < nRecords; h++)
+		{
+			if (strcmp((record+h)->sUniqueTopics, "\0") != 0 && h != nUniqueTopicNum)
+			{
+				printf("TOPIC: '%s'\n", (record+h)->sUniqueTopics);
+			}		
+		}
+		
+		i = 0;
+		
+		do //gets the index i based on the amount of nUniqueTopics and assigns that to nRecordSelect so that in the function, it knows what topic you chose
+		{
+			if (i == nUniqueTopicNum && bTopicTrue == 1)
+			{
+				i = 0;
+			}
+			
+			if (strcmp((record+i)->sUniqueTopics, "\0") != 0)
+			{
+			printf("||| Choose TOPIC: '%s' [y/n]? ", (record+i)->sUniqueTopics);
+			scanf(" %c", &ch);
+			}
+				
+			if (ch == 'y' || ch == 'Y')
+			{
+				bTopicTrue = 0;
+			}
+			else
+			{
+				i++;
+				bTopicTrue = 1;
+			}
+		} while (i <= nUniqueTopicNum && bTopicTrue == 1);
+			
+		nRecordSelect = i; 
+		
+		for (j = 0; j < nRecords; j++) //index through the records and compare sTopic to chosen UniqueTopic name, if it finds the same on any index of record add it to the nQuestionIndex array. If it isnt add 0 instead of the value of j.
+		{
+			if (strcmp((record+nRecordSelect)->sUniqueTopics,(record+j)->sTopic) == 0)
+			{
+				nQuestionIndex[nFoundQuestion++] = j; 
+			}
+			else
+			{
+				nQuestionIndex[nFoundQuestion++] = 0; 
+			}
+		}
+		
+		srand(time(NULL));
+
+		do
+		{
+			int nRandomIndex = rand() % nFoundQuestion; // generate random number between 0 and nFoundQuestion-1
+			int nChosenIndex = nQuestionIndex[nRandomIndex]; // get the index of the chosen question
+			if (strcmp((record+nRecordSelect)->sUniqueTopics,(record+nChosenIndex)->sTopic) == 0 && bQuestionTrue == 1)
+			{
+				bSkipQuestion = 0;
+			}
+			else
+			{
+				bSkipQuestion = 1;
+			}
+			if (bSkipQuestion == 0)
+			{
+				printf("\n-QUIZ GAME-\n");
+				printf("~||Question: %s\n", (record+nChosenIndex)->sQuestion);
+				printf("Choice one: %s\n", (record+nChosenIndex)->sChoicesOne);
+				printf("Choice two: %s\n", (record+nChosenIndex)->sChoicesTwo);
+				printf("Choice three: %s\n", (record+nChosenIndex)->sChoicesThree);
+				printf("||| What is your answer: ");
+				fflush(stdin);
+				fgets(sChoose, MAX_ANSWER_LENGTH, stdin);
+				sChoose[strlen(sChoose)-1] = '\0';
+					
+				if (strcmp(sChoose, (record+nChosenIndex)->sAnswer) == 0)
+				{
+					printf("\n||| Answer correct, you get a point!\n");
+				}
+					
+				else
+				{
+					printf("\n||| Wrong answer.\n");
+				}
+					
+				nQuestionIndex[nRandomIndex] = nQuestionIndex[nFoundQuestion-1]; // replace the chosen index with the last index in the array
+				nFoundQuestion--; // decrement the size of the array
+					
+				for (k = nChosenIndex; k < nRecords; k++)
+				{
+					strcpy((record+k)->sTopic,(record+(k+1))->sTopic);
+					(record+k)->nQuestionNum = (record+(k+1))->nQuestionNum;
+					strcpy((record+k)->sQuestion,(record+(k+1))->sQuestion);
+					strcpy((record+k)->sChoicesOne,(record+(k+1))->sChoicesOne);
+					strcpy((record+k)->sChoicesTwo,(record+(k+1))->sChoicesTwo);
+					strcpy((record+k)->sChoicesThree,(record+(k+1))->sChoicesThree);
+					strcpy((record+k)->sAnswer,(record+(k+1))->sAnswer);
+				}
+					
+				strcpy((record+nRecords-1)->sTopic, "");
+				(record+nRecords-1)->nQuestionNum = 0;
+				strcpy((record+nRecords-1)->sQuestion, "");
+				strcpy((record+nRecords-1)->sChoicesOne, "");
+				strcpy((record+nRecords-1)->sChoicesTwo, "");
+				strcpy((record+nRecords-1)->sChoicesThree, "");
+				strcpy((record+nRecords-1)->sAnswer, "");	
+			
+				updateQuestionNumber(record, nRecords);
+					
+				nRecords--;
+				bQuestionTrue = 0;
+				bEnd = 1;
+			}
+		} while (bQuestionTrue == 1);
+
+		
+		if (nFoundQuestion == 0)
+		{
+			printf("\n||| No more questions found.");
+			bEnd = 1;
+		}
+		
+	}
+	
+	return nRecords;
 }
 
 
