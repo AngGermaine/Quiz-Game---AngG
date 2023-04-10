@@ -350,8 +350,8 @@ inputPassword()
 	
 	char aInputPass[MAX_SIZE];
 	char ch; //take a string input
-	int i = 0; //counter for input
-	int bIsPass = 0; //boolean for checking if correct password
+	int i = 0, j, nLen1, nLen2; 
+	int bIsPass = 0, bCheck = 0; //boolean for checking if correct password
 	int nMMreturn; //taking int input for options
 	
 	printf("\n-LOGIN-");
@@ -362,22 +362,35 @@ inputPassword()
 		do //ask for string input
 		{
 			ch = getch();
-			if (ch != 13)
+			if (ch == 8)
+			{
+				if (i > 0)
+				{
+					i--;
+					printf("\b \b");
+				}
+			}
+			else if (ch != 13)
 			{
 				printf("*");
 				aInputPass[i] = ch;
 				i++;
-				aInputPass[i] = '\0';
 			}
 		} while (i < MAX_SIZE && ch != 13);
 		
-		if (strcmp(sPassword, aInputPass) == 0)
-		{
-			bIsPass = 1;
-		}	
+		aInputPass[i] = '\0';
+		
+		nLen1 = strlen(sPassword);
+		nLen2 = strlen(aInputPass);
+		
+		if (nLen1 == nLen2 && strcmp(sPassword, aInputPass) == 0)
+        {
+            bIsPass = 1;
+        }
+        
 		else 
 		{
-			printf("\n||| Wrong password.\n");
+			printf("\n||| Wrong password.\n"	);
 			bIsPass = 0;
 			
 			do
