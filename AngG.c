@@ -1125,13 +1125,12 @@ editRecord(struct record *record,
 				    fgets(sEditInput, MAX_SIZE, stdin);
 				    sEditInput[strlen(sEditInput)-1] = '\0';
 					
-				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sQuestion) == 0 || 
-				                 strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0;
+				    bSameInput = strcmp(sEditInput, (record+nRecordIndex)->sAnswer) == 0;
 					
 				    if (bSameInput) 
 					{
 						bFound = 0;
-				        printf("||| Please enter a different answer.\n");
+				        printf("||| This is the current answer, please enter a different answer.\n");
 				    } 
 				    
 					else 
