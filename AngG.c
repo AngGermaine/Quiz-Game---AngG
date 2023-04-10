@@ -350,8 +350,8 @@ inputPassword()
 	
 	char aInputPass[MAX_SIZE];
 	char ch; //take a string input
-	int i = 0, j, nLen1, nLen2; 
-	int bIsPass = 0, bCheck = 0; //boolean for checking if correct password
+	int i = 0, nLen1, nLen2; 
+	int bIsPass = 0;//boolean for checking if correct password
 	int nMMreturn; //taking int input for options
 	
 	printf("\n-LOGIN-");
