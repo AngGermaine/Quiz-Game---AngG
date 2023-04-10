@@ -1983,7 +1983,11 @@ exportScores(struct players *player,
 		if (!bExported) 
 		{
 			fprintf(fp, "%s\n", (player+i)->sName);
-			fprintf(fp, "%d\n\n", (player+i)->nGameScore);
+			fprintf(fp, "%d\n", (player+i)->nGameScore);
+			if (i < nPlayers - 1) 
+	        {
+	            fprintf(fp, "\n");
+	        }
 		}
 	}
 	fclose(fp);
