@@ -277,6 +277,7 @@ int main()
 											
 										else
 										{
+											nRecord = saveRecord(aRecords, nRecord, sFileName);
 											printf("\n||| %s's SCORE is: %d\n\n", (aPlayers+nPlayerCount)->sName, (aPlayers+nPlayerCount)->nGameScore);
 											nPlayerCount = countPlayers(aPlayers, nPlayerCount);
 											system("pause");
@@ -1541,7 +1542,12 @@ exportRecord(struct record *record,
 			fprintf(fp, "%s\n", (record+i)->sChoicesOne);
 			fprintf(fp, "%s\n", (record+i)->sChoicesTwo);
 			fprintf(fp, "%s\n", (record+i)->sChoicesThree);
-			fprintf(fp, "%s\n\n", (record+i)->sAnswer);
+			fprintf(fp, "%s\n", (record+i)->sAnswer);
+			
+			if (i < nRecords - 1)
+			{
+				fprintf(fp, "\n");
+			}
 		}
 		fclose(fp);
 		printf("||| Records have been exported to %s.\n\n", sFileName);
@@ -1992,4 +1998,3 @@ exportScores(struct players *player,
 	}
 	fclose(fp);
 }
-
